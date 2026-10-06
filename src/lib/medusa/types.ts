@@ -143,6 +143,23 @@ export interface CustomerPdpaRecord {
   erasure_timestamp?: string;
 }
 
+export interface MedusaReturn {
+  id: string;
+  order_id: string;
+  display_id: number;
+  reason: string;
+  status: "requested" | "pickup_scheduled" | "received" | "inspected" | "refunded";
+  return_method: "easyparcel_pickup" | "mbs_salon_dropoff";
+  items: {
+    title: string;
+    quantity: number;
+  }[];
+  tracking_number?: string;
+  refund_amount: number;
+  notes?: string;
+  created_at: string;
+}
+
 export interface MedusaCustomer {
   id: string;
   first_name: string;
@@ -168,4 +185,24 @@ export interface MedusaCustomer {
   refunds: MedusaRefund[];
   created_at: string;
   updated_at: string;
+}
+
+export interface ProductReview {
+  id: string;
+  product_id: number;
+  product_slug: string;
+  author_name: string;
+  author_email?: string;
+  author_location: string;
+  rating: number; // 1 to 5
+  title: string;
+  content: string;
+  verified_purchase: boolean;
+  monogram_ordered?: string;
+  created_at: string;
+  merchant_reply?: {
+    author: string;
+    content: string;
+    created_at: string;
+  };
 }

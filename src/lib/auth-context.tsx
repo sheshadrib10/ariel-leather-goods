@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { MedusaOrder, MedusaRefund, CustomerSearchLog, CustomerPdpaRecord } from "./medusa/types";
+import { MedusaOrder, MedusaRefund, CustomerSearchLog, CustomerPdpaRecord, MedusaReturn } from "./medusa/types";
 
 export interface UserAccount {
   id: string;
@@ -21,6 +21,7 @@ export interface UserAccount {
   monogramFoil: "gold" | "blind" | "silver";
   orders: MedusaOrder[];
   refunds: MedusaRefund[];
+  returns?: MedusaReturn[];
   searchHistory: CustomerSearchLog[];
   notes?: string;
   tags: string[];
@@ -52,6 +53,12 @@ interface AuthContextType {
   logout: () => void;
   updateProfile: (data: Partial<UserAccount>) => void;
   addOrderToAccount: (order: MedusaOrder) => void;
+  requestOrderReturn: (
+    orderId: string,
+    reason: string,
+    returnMethod: "easyparcel_pickup" | "mbs_salon_dropoff",
+    notes?: string
+  ) => Promise<{ success: boolean; returnRecord?: MedusaReturn; message: string }>;
   logSearchQuery: (query: string, resultsCount: number, mode?: "auto" | "conventional" | "ai" | "visual") => void;
   exportPdpaData: () => { jsonString: string; filename: string };
   updatePdpaConsent: (options: { marketingEmail?: boolean; marketingPhone?: boolean }) => void;
@@ -722,6 +729,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Customer Returns & RMA Management (Medusa Returns Module)
+  const requestOrderReturn = async (
+    orderId: string,
+    reason: string,
+    returnMethod: "easyparcel_pickup" | "mbs_salon_dropoff",
+    notes?: string
+  ): Promise<{ success: boolean; returnRecord?: MedusaReturn; message: string }> => {
+    if (!currentUser) return { success: false, message: "Please sign in to request a return." };
+    const order = currentUser.orders.find((o) => o.id === orderId || o.display_id === Number(orderId));
+    if (!order) return { success: false, message: "Order commission not found." };
+
+    const newReturn: MedusaReturn = {
+      id: `ret_${Date.now()}`,
+      order_id: order.id,
+      display_id: order.display_id,
+      reason,
+      status: "requested",
+      return_method: returnMethod,
+      items: order.items.map((i) => ({ title: i.title, quantity: i.quantity })),
+      tracking_number: returnMethod === "easyparcel_pickup" ? `RET-EP-${Math.floor(100000 + Math.random() * 900000)}` : undefined,
+      refund_amount: order.total,
+      notes,
+      created_at: new Date().toISOString(),
+    };
+
+    const updatedReturns = [newReturn, ...(currentUser.returns || [])];
+    const updatedUser = {
+      ...currentUser,
+      returns: updatedReturns,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setCurrentUser(updatedUser);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
+
+    const users = getUsersFromStorage();
+    const idx = users.findIndex((u) => u.id === currentUser.id);
+    if (idx !== -1) {
+      users[idx] = updatedUser;
+      saveUsersToStorage(users);
+    }
+
+    return {
+      success: true,
+      returnRecord: newReturn,
+      message: `Return RMA-SG-${newReturn.display_id} recorded. White-glove return instructions initiated.`,
+    };
+  };
+
   // Log storefront search queries to customer journey
   const logSearchQuery = (
     query: string,
@@ -1019,6 +1075,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         updateProfile,
         addOrderToAccount,
+        requestOrderReturn,
         logSearchQuery,
         exportPdpaData,
         updatePdpaConsent,

@@ -106,7 +106,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 89,
     image_url: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1559563458-527698bf5295?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80"
     ],
     description: "An indispensable heirloom travel organizer. Carries your tablet, passport, foreign currency, and daily notes in a single compact Tuscan Vachetta folio.",
     craftsmanship_notes: "Untreated Vachetta leather tanned with mimosa and chestnut extracts, aging gracefully into a rich golden honey hue."
@@ -144,7 +146,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 112,
     image_url: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1559563458-527698bf5295?auto=format&fit=crop&w=800&q=80"
     ],
     description: "The epitome of pocket minimalism. Disappears effortlessly into slim-tailored suits while safeguarding your vital cards.",
     craftsmanship_notes: "Lined with supple French calfskin for silky card withdrawal."
@@ -182,7 +186,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 64,
     image_url: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80"
     ],
     description: "Engineered for high-stakes meetings and global transit. Constructed from resilient English bridle leather that holds structural rigidity year after year.",
     craftsmanship_notes: "Hand-molded handles filled with dense cord for comfortable all-day grip."
@@ -220,7 +226,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 53,
     image_url: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"
     ],
     description: "The definitive weekend companion. Cut from storied Horween Chromexcel leather that resists scuffs, scratches, and inclement weather.",
     craftsmanship_notes: "Waterproof herringbone cotton drill lining protects fine tailoring."
@@ -258,7 +266,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 98,
     image_url: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1559563458-527698bf5295?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80"
     ],
     description: "Two timeless belts in one. A simple pull-and-twist rotates the brushed gunmetal buckle from rich espresso brown to formal onyx black.",
     craftsmanship_notes: "Triple-ply laminated leather construction ensures no stretching or creasing over time."
@@ -296,7 +306,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 77,
     image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80"
     ],
     description: "The ultimate sanctuary for treasured mechanical timepieces. Designed with deep partition walls and a sliding cushion rail system that prevents watch crowns from touching.",
     craftsmanship_notes: "Saffiano crosshatch texture provides complete scratch and splash resistance during global travel."
@@ -334,7 +346,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 48,
     image_url: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"
     ],
     description: "Designed for the urban commute. Supple pebbled calfskin drapes naturally against the hip while keeping electronics secure.",
     craftsmanship_notes: "Glove-tanned leather treated with natural waxes for weather repellency."
@@ -372,7 +386,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 59,
     image_url: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1559563458-527698bf5295?auto=format&fit=crop&w=800&q=80"
     ],
     description: "All your travel documents under one secure zipper. Keeps foreign banknotes, passports, boarding passes, and SIM cards arranged with surgical precision.",
     craftsmanship_notes: "Infused with hot beeswax for a rugged water-resistant surface."
@@ -410,7 +426,10 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 105,
     image_url: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80"
     ],
     description: "The handsome drop zone for everyday essentials. Drop your phone to charge wirelessly while your keys, coins, and wedding band rest in Horween Dublin leather.",
     craftsmanship_notes: "Cut from thick 6oz Dublin hides that show natural grain variation and rich pull-up undertones."
@@ -486,7 +505,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 61,
     image_url: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1559563458-527698bf5295?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80"
     ],
     description: "The ideal gift for thoughtful note-takers and architects. Pueblo leather starts with a distinct rustic nap and patinas into a smooth, glossy dark amber.",
     craftsmanship_notes: "Tanned in Tuscany using centuries-old vacchetta methods."
@@ -562,7 +583,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 42,
     image_url: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"
     ],
     description: "Hands-free freedom crafted in butter-soft Italian Nappa leather. Features high-spec magnetic hardware for lightning-fast one-handed access.",
     craftsmanship_notes: "Reinforced with lightweight Kevlar webbing for slash protection."
@@ -600,7 +623,10 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 120,
     image_url: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80"
     ],
     description: "Transforms noisy, bulky keyrings into an elegant, silent leather stack with seamless AirTag GPS location tracking.",
     craftsmanship_notes: "Crazy horse waxed leather rubs away minor scratches with the warmth of your fingertip."
@@ -638,7 +664,9 @@ export const INITIAL_PRODUCTS: Omit<Product, "embedding" | "search_text">[] = [
     review_count: 57,
     image_url: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
     gallery_images: [
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"
     ],
     description: "The rugged chameleon of luggage. Carry it like an executive duffle or deploy the concealed backpack straps when walking through airports or cobblestone streets.",
     craftsmanship_notes: "Thick oil-tanned leather that repels rain and gains rugged character with journey miles."
@@ -675,3 +703,24 @@ export function enrichProductWithEmbedding(p: Omit<Product, "embedding" | "searc
 }
 
 export const PRODUCTS_CATALOG: Product[] = INITIAL_PRODUCTS.map(enrichProductWithEmbedding);
+
+export function getProductBySlug(slug: string): Product | undefined {
+  return PRODUCTS_CATALOG.find((p) => p.slug === slug || p.slug.toLowerCase() === slug.toLowerCase());
+}
+
+export function getProductById(id: number): Product | undefined {
+  return PRODUCTS_CATALOG.find((p) => p.id === id);
+}
+
+export function getComplementaryProducts(currentProduct: Product, limit: number = 4): Product[] {
+  return PRODUCTS_CATALOG
+    .filter((p) => p.id !== currentProduct.id)
+    .sort((a, b) => {
+      const aColorMatch = a.colour_family === currentProduct.colour_family ? 2 : 0;
+      const bColorMatch = b.colour_family === currentProduct.colour_family ? 2 : 0;
+      const aDiffCat = a.category !== currentProduct.category ? 1 : 0;
+      const bDiffCat = b.category !== currentProduct.category ? 1 : 0;
+      return (bColorMatch + bDiffCat + b.popularity_score / 100) - (aColorMatch + aDiffCat + a.popularity_score / 100);
+    })
+    .slice(0, limit);
+}

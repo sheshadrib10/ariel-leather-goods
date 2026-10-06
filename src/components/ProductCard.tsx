@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Heart, Plus, Check, Eye, Compass, Star } from "lucide-react";
 import { RankedProduct } from "@/lib/search-engine";
 
@@ -40,22 +41,21 @@ export function ProductCard({
   };
 
   return (
-    <div
-      onClick={() => onQuickView(product)}
-      className="group cursor-pointer flex flex-col justify-between bg-white rounded-2xl border border-ariel-tan/20 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300"
-    >
+    <div className="group flex flex-col h-full bg-white rounded-2xl border border-ariel-tan/20 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300">
       {/* Product Imagery */}
-      <div className="relative aspect-[4/3] bg-ariel-sand/30 overflow-hidden">
-        <img
-          src={product.image_url}
-          alt={product.title}
-          className="w-full h-full object-cover object-center group-hover:scale-104 transition-transform duration-700 ease-out"
-          loading="lazy"
-        />
+      <div className="relative aspect-[4/3] w-full bg-ariel-sand/30 overflow-hidden shrink-0">
+        <Link href={`/products/${product.slug}`} className="block w-full h-full">
+          <img
+            src={product.image_url}
+            alt={product.title}
+            className="w-full h-full object-cover object-center group-hover:scale-104 transition-transform duration-700 ease-out"
+            loading="lazy"
+          />
+        </Link>
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
-          <span className="px-2.5 py-1 rounded-md text-[9px] font-bold tracking-widest uppercase bg-ariel-espresso/90 text-ariel-sand backdrop-blur-sm shadow-xs">
+        <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 pointer-events-none">
+          <span className="px-2.5 py-1 rounded-md text-[9px] font-bold tracking-widest uppercase bg-ariel-espresso/90 text-ariel-sand backdrop-blur-xs shadow-xs">
             {product.leather_type}
           </span>
         </div>
@@ -74,66 +74,92 @@ export function ProductCard({
         </button>
 
         {/* Hover Quick Actions */}
-        <div className="absolute inset-0 bg-black/15 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-4">
-          <span className="px-4 py-2 bg-white/95 text-ariel-espresso rounded-xl text-xs font-bold tracking-wider uppercase shadow-lg flex items-center gap-1.5 backdrop-blur-xs">
+        <div className="absolute inset-0 bg-black/15 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-4 pointer-events-none">
+          <button
+            onClick={() => onQuickView(product)}
+            className="pointer-events-auto px-4 py-2 bg-white/95 hover:bg-white text-ariel-espresso rounded-xl text-xs font-bold tracking-wider uppercase shadow-lg flex items-center gap-1.5 backdrop-blur-xs transition-transform hover:scale-105"
+          >
             <Eye className="w-3.5 h-3.5 text-ariel-amber" />
             <span>Quick View</span>
-          </span>
+          </button>
         </div>
       </div>
 
-      {/* Product Information */}
+      {/* Product Information Body with Strict Alignment */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
-        <div>
-          {/* Category & Color */}
-          <div className="flex items-center justify-between text-[11px] text-ariel-saddle/80 font-medium tracking-wider uppercase mb-1">
-            <span>{product.category} &bull; {product.colour}</span>
-            <span className="text-[10px] text-gray-400 font-semibold tracking-normal">
-              {product.rating} &starf;
+        {/* Top Information Block */}
+        <div className="flex-1 flex flex-col">
+          {/* Row 1: Category & 5-Star Patron Rating */}
+          <div className="flex items-center justify-between text-[11px] text-ariel-saddle/80 font-medium tracking-wider uppercase h-5 mb-1.5">
+            <span className="truncate max-w-[130px] sm:max-w-[150px]">
+              {product.category} &bull; {product.colour}
             </span>
+            <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center text-amber-500">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`w-3 h-3 ${
+                      star <= Math.round(product.rating)
+                        ? "fill-amber-400 text-amber-400"
+                        : "fill-stone-200 text-stone-200"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-[10px] text-gray-800 font-bold ml-0.5">{product.rating.toFixed(1)}</span>
+              <span className="text-[9.5px] text-gray-400 font-medium">({product.review_count})</span>
+            </div>
           </div>
 
-          {/* Title */}
-          <h3 className="font-serif text-base sm:text-lg font-bold text-ariel-espresso group-hover:text-ariel-saddle transition-colors line-clamp-1 mb-1">
+          {/* Row 2: Title */}
+          <Link
+            href={`/products/${product.slug}`}
+            className="block font-serif text-base font-bold text-ariel-espresso hover:text-ariel-saddle transition-colors truncate h-6 mb-1.5 leading-snug"
+            title={product.title}
+          >
             {product.title}
-          </h3>
+          </Link>
 
-          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-3">
+          {/* Row 3: Description (Fixed 2 lines height) */}
+          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed h-10 mb-3 overflow-hidden">
             {product.description}
           </p>
 
-          {/* Complimentary Monogramming Feature Tag */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200/60 font-semibold">
+          {/* Row 4: Complimentary Monogramming Badge Row */}
+          <div className="flex items-center gap-2 h-6 mb-3 shrink-0">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200/60 font-semibold truncate">
               Complimentary Monogram
             </span>
-            <span className="text-[10px] text-gray-400">
+            <span className="text-[10px] text-gray-400 shrink-0">
               Singapore Stock
             </span>
           </div>
         </div>
 
-        {/* Price & Add to Bag Row */}
-        <div className="pt-3 border-t border-ariel-tan/20 flex items-center justify-between">
-          <div>
-            <span className="font-serif text-base sm:text-lg font-bold text-ariel-espresso">
+        {/* Bottom Block: Price & Actions with Baseline Lock */}
+        <div className="pt-3 border-t border-ariel-tan/20 flex items-end justify-between min-h-[4rem] shrink-0">
+          {/* Left: Pricing & Singapore Tax Notice */}
+          <div className="flex flex-col justify-end">
+            <span className="font-serif text-base sm:text-lg font-bold text-ariel-espresso leading-none mb-1">
               {price}
             </span>
-            <span className="block text-[9.5px] text-emerald-800 font-medium">
+            <span className="text-[9.5px] text-emerald-800 font-semibold leading-tight block">
               Incl. 9% SG GST &bull; EasyParcel SG
             </span>
-            <span className="block text-[9.5px] text-gray-400 font-medium">
+            <span className="text-[9.5px] text-gray-400 font-medium leading-tight block">
               {currency === "SGD" ? `≈ USD $${product.price_usd}` : `≈ SGD S$${product.price_sgd}`}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          {/* Right: Actions */}
+          <div className="flex items-center gap-1.5 shrink-0 self-end">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onFindSimilar(product);
               }}
-              className="p-2 text-gray-400 hover:text-ariel-espresso rounded-lg hover:bg-ariel-sand transition-colors"
+              className="h-8 w-8 text-gray-400 hover:text-ariel-espresso rounded-xl hover:bg-ariel-sand transition-colors flex items-center justify-center shrink-0 border border-transparent hover:border-ariel-tan/30"
               title="Show creations with matching silhouette or leather patina"
             >
               <Compass className="w-4 h-4 text-ariel-amber" />
@@ -142,7 +168,7 @@ export function ProductCard({
             <button
               onClick={handleAdd}
               disabled={!product.in_stock}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1 shadow-xs ${
+              className={`h-8 px-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1 shadow-xs shrink-0 ${
                 added
                   ? "bg-emerald-600 text-white"
                   : "bg-ariel-espresso hover:bg-ariel-cognac text-ariel-sand"

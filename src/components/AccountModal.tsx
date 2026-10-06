@@ -24,9 +24,13 @@ import {
   Eye,
   RefreshCw,
   Bell,
+  RotateCcw,
 } from "lucide-react";
 import { RankedProduct } from "@/lib/search-engine";
 import { useAuth } from "@/lib/auth-context";
+import { MedusaOrder } from "@/lib/medusa/types";
+import { SingaporeTaxInvoiceModal } from "@/components/SingaporeTaxInvoiceModal";
+import { CustomerReturnModal } from "@/components/CustomerReturnModal";
 
 interface AccountModalProps {
   isOpen: boolean;
@@ -91,6 +95,8 @@ export function AccountModal({
   const [authSuccess, setAuthSuccess] = useState("");
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [erasureConfirmOpen, setErasureConfirmOpen] = useState(false);
+  const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<MedusaOrder | null>(null);
+  const [selectedReturnOrder, setSelectedReturnOrder] = useState<MedusaOrder | null>(null);
 
   // Editable profile state when logged in
   const [editProfile, setEditProfile] = useState({
@@ -354,6 +360,55 @@ export function AccountModal({
                     </svg>
                     <span>Facebook SSO</span>
                   </button>
+                </div>
+
+                {/* 1-Click Demo Patron Accounts for testing */}
+                <div className="p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-amber-900 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                      <span>1-Click Demo Patron Accounts</span>
+                    </span>
+                    <span className="text-[9px] bg-amber-200/70 text-amber-900 font-mono px-2 py-0.5 rounded">
+                      Instant Access
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setSigninEmail("alexander.tan@atelier.sg");
+                        setSigninPassword("Password123!");
+                        await login("alexander.tan@atelier.sg", "Password123!");
+                      }}
+                      className="p-2.5 bg-white hover:bg-amber-100/50 border border-amber-300 rounded-xl text-left transition-colors flex items-center justify-between"
+                    >
+                      <div>
+                        <span className="font-bold text-xs text-gray-900 block">Alexander Tan</span>
+                        <span className="text-[10px] text-gray-500 font-mono">alexander.tan@atelier.sg</span>
+                        <span className="text-[9px] text-amber-800 font-medium block mt-0.5">VIP Patron &bull; Nassim Rd &bull; [AT]</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-amber-700 shrink-0" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setSigninEmail("sheshadri.lacawnche@gmail.com");
+                        setSigninPassword("Password123!");
+                        await login("sheshadri.lacawnche@gmail.com", "Password123!");
+                      }}
+                      className="p-2.5 bg-white hover:bg-amber-100/50 border border-amber-300 rounded-xl text-left transition-colors flex items-center justify-between"
+                    >
+                      <div>
+                        <span className="font-bold text-xs text-gray-900 block">Somnath B.</span>
+                        <span className="text-[10px] text-gray-500 font-mono">sheshadri.lacawnche@gmail.com</span>
+                        <span className="text-[9px] text-amber-800 font-medium block mt-0.5">MBS Resident &bull; [SB]</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-amber-700 shrink-0" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3 my-2 text-gray-400 text-[11px] uppercase tracking-wider font-semibold">
@@ -871,12 +926,77 @@ export function AccountModal({
                           AWB: {order.easyparcel_awb || order.tracking_number}
                         </span>
                       </div>
+
+                      {/* Action Controls: Singapore Tax Invoice & Returns */}
+                      <div className="pt-2.5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedInvoiceOrder(order)}
+                          className="px-3 py-1.5 rounded-xl border border-ariel-tan/40 hover:bg-ariel-sand/40 text-ariel-espresso font-semibold text-[11px] flex items-center gap-1.5 transition-colors shadow-2xs"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-ariel-amber" />
+                          <span>Official Tax Invoice (IRAS 9% GST)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedReturnOrder(order)}
+                          className="px-3 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-[11px] flex items-center gap-1.5 transition-colors shadow-2xs"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5 text-gray-500" />
+                          <span>Request Return / RMA</span>
+                        </button>
+                      </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-12 text-gray-400">
                     <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p>No commissions placed yet.</p>
+                  </div>
+                )}
+
+                {/* Medusa RMA Returns & Exchanges Ledger */}
+                {currentUser?.returns && currentUser.returns.length > 0 && (
+                  <div className="pt-4 border-t border-ariel-tan/20 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <RotateCcw className="w-4 h-4 text-ariel-amber" />
+                      <h5 className="font-serif font-bold text-sm text-ariel-espresso">
+                        Medusa Returns & Exchanges (RMA Ledger)
+                      </h5>
+                    </div>
+                    <div className="space-y-2.5">
+                      {currentUser.returns.map((ret) => (
+                        <div
+                          key={ret.id}
+                          className="p-3.5 bg-white border border-ariel-tan/30 rounded-2xl space-y-2 text-[11px] shadow-2xs"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <span className="font-mono font-bold text-ariel-espresso">RMA-SG-{ret.display_id}</span>
+                              <span className="text-[10px] text-gray-500 block">
+                                Order #{ret.order_id.slice(-6)} &bull; {new Date(ret.created_at).toLocaleDateString("en-SG")}
+                              </span>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
+                              {ret.status}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-gray-600">
+                            <span>Reason: {ret.reason}</span>
+                            <span className="font-bold text-gray-900 font-mono">Refund: S${ret.refund_amount.toFixed(2)} SGD</span>
+                          </div>
+                          <div className="flex justify-between text-[10px] text-gray-500 pt-1.5 border-t border-gray-100">
+                            <span className="capitalize">
+                              Logistics: {ret.return_method === "easyparcel_pickup" ? "EasyParcel White-Glove Pickup" : "MBS Flagship Salon Drop-off"}
+                            </span>
+                            {ret.tracking_number && (
+                              <span className="font-mono text-amber-800">Return AWB: {ret.tracking_number}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1054,6 +1174,22 @@ export function AccountModal({
           </div>
         )}
       </div>
+
+      {/* Official Singapore Tax Invoice Modal */}
+      {selectedInvoiceOrder && (
+        <SingaporeTaxInvoiceModal
+          order={selectedInvoiceOrder}
+          onClose={() => setSelectedInvoiceOrder(null)}
+        />
+      )}
+
+      {/* Medusa Boutique RMA Return Request Modal */}
+      {selectedReturnOrder && (
+        <CustomerReturnModal
+          order={selectedReturnOrder}
+          onClose={() => setSelectedReturnOrder(null)}
+        />
+      )}
     </div>
   );
 }

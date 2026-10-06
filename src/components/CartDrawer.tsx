@@ -162,6 +162,41 @@ export function CartDrawer({
     setDiscountError("");
     if (!promoCode.trim()) return;
 
+    // Check custom privilege codes created in Admin portal
+    if (typeof window !== "undefined") {
+      const savedDiscountsStr = localStorage.getItem("ariel_admin_discounts_v2");
+      if (savedDiscountsStr) {
+        try {
+          const localDiscounts: Array<{
+            code: string;
+            type: "percentage" | "fixed_amount";
+            value: number;
+            min_subtotal: number;
+            description: string;
+          }> = JSON.parse(savedDiscountsStr);
+          const found = localDiscounts.find(
+            (d) => d.code.toUpperCase() === promoCode.trim().toUpperCase()
+          );
+          if (found) {
+            if (rawSubtotal < found.min_subtotal) {
+              setDiscountError(`Minimum order of S$${found.min_subtotal} required for code ${found.code}`);
+              return;
+            }
+            setAppliedDiscount({
+              code: found.code,
+              type: found.type === "fixed_amount" ? "fixed" : "percentage",
+              value: found.value,
+              description: found.description,
+            });
+            setPromoCode("");
+            return;
+          }
+        } catch (e) {
+          console.warn("Failed reading custom discounts:", e);
+        }
+      }
+    }
+
     try {
       const res = await fetch("/api/medusa/discounts", {
         method: "POST",

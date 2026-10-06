@@ -176,6 +176,23 @@ export function Header({
           </button>
         </div>
       </div>
+
+      {/* Mobile Category Navigation Strip */}
+      <div className="lg:hidden px-4 pb-2.5 overflow-x-auto flex gap-2 text-[11px] font-semibold uppercase tracking-wider border-t border-ariel-tan/15 pt-2 bg-ariel-cream/60">
+        {NAV_LINKS.map((link) => (
+          <button
+            key={link.id}
+            onClick={() => onSelectCategory(link.id)}
+            className={`px-3 py-1 rounded-full whitespace-nowrap transition-colors shrink-0 ${
+              activeCategory === link.id
+                ? "bg-ariel-espresso text-ariel-sand font-bold shadow-2xs"
+                : "bg-ariel-sand/40 text-ariel-espresso/80 hover:bg-ariel-sand"
+            }`}
+          >
+            {link.label}
+          </button>
+        ))}
+      </div>
     </header>
   );
 }

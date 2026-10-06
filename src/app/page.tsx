@@ -68,6 +68,38 @@ export default function HomePage() {
 
       const res = await fetch(`/api/search?${params.toString()}`);
       const data = await res.json();
+
+      // Merge custom creations or updates published from Uncle's Admin Cockpit
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("ariel_admin_products_v2");
+        if (saved && data.products) {
+          try {
+            const customProds = JSON.parse(saved);
+            const updatedProducts = data.products.map((p: RankedProduct) => {
+              const customMatch = customProds.find((cp: any) => cp.id === p.id);
+              return customMatch ? { ...p, ...customMatch } : p;
+            });
+            // Also include any brand new creations created in admin
+            customProds.forEach((cp: any) => {
+              if (!updatedProducts.some((p: RankedProduct) => p.id === cp.id)) {
+                if (cat === "all" || cp.category === cat) {
+                  updatedProducts.unshift({
+                    ...cp,
+                    relevance_score: 0.99,
+                    highlights: [cp.leather_type, `${cp.colour} Patina`],
+                    why_recommended: "Newly published bespoke creation from the Florentine Atelier.",
+                  } as RankedProduct);
+                }
+              }
+            });
+            data.products = updatedProducts;
+            data.total_matches = updatedProducts.length;
+          } catch (e) {
+            console.warn("Failed merging custom products:", e);
+          }
+        }
+      }
+
       setSearchResult(data);
       if (q.trim()) {
         logSearchQuery(q.trim(), data.products?.length || 0, mode);
