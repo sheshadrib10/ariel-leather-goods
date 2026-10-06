@@ -50,6 +50,7 @@ import { INITIAL_ORDERS, VALID_DISCOUNTS } from "@/lib/medusa/store";
 import { MedusaOrder, MedusaDiscount, MedusaRefund } from "@/lib/medusa/types";
 import { useAuth, UserAccount } from "@/lib/auth-context";
 import { SingaporeTaxInvoiceModal } from "@/components/SingaporeTaxInvoiceModal";
+import { InventoryModule } from "@/components/admin/InventoryModule";
 
 export const runtime = "edge";
 
@@ -183,7 +184,7 @@ export default function AdminPortalPage() {
 
   // Navigation state
   const [activeTab, setActiveTab] = useState<
-    "orders" | "catalog" | "analytics" | "discounts" | "customers" | "settings"
+    "orders" | "inventory" | "catalog" | "analytics" | "discounts" | "customers" | "settings"
   >("orders");
 
   // Merchant Security Gate & Authentication State
@@ -725,6 +726,7 @@ export default function AdminPortalPage() {
   const netSales = grossRevenue / 1.09;
   const gstCollected = grossRevenue - netSales;
   const activeOrdersCount = orders.filter((o) => o.status !== "delivered").length;
+  const lowStockCount = products.filter((p) => (p.inventory_count || 0) <= 3 && (p.inventory_count || 0) > 0).length;
 
   // ==========================================
   // UNAUTHENTICATED: MERCHANT SECURITY GATE
@@ -953,6 +955,7 @@ export default function AdminPortalPage() {
           <div className="flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-x-visible pb-1 lg:pb-0">
             {[
               { id: "orders", label: "Orders", fullLabel: "Orders & Fulfillment", icon: Package, badge: activeOrdersCount },
+              { id: "inventory", label: "Inventory", fullLabel: "Medusa Stock & Locations", icon: Layers, badge: lowStockCount },
               { id: "analytics", label: "Analytics", fullLabel: "Medusa Analytics (D/W/M/Y)", icon: BarChart3 },
               { id: "catalog", label: "Listings", fullLabel: "Masterpiece Listings", icon: ShoppingBag, badge: products.length },
               { id: "customers", label: "Patrons", fullLabel: "Patron CRM & PDPA", icon: Users, badge: customers.length },
@@ -1173,6 +1176,19 @@ export default function AdminPortalPage() {
                 </table>
               </div>
             </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TAB: MEDUSA INVENTORY & STOCK LEDGER                      */}
+          {/* ========================================================= */}
+          {activeTab === "inventory" && (
+            <InventoryModule
+              products={products}
+              onUpdateProducts={(updated) => {
+                setProducts(updated);
+                localStorage.setItem("ariel_admin_products_v2", JSON.stringify(updated));
+              }}
+            />
           )}
 
           {/* ========================================================= */}

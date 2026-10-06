@@ -206,3 +206,50 @@ export interface ProductReview {
     created_at: string;
   };
 }
+
+export interface MedusaStockLocation {
+  id: string;
+  name: string;
+  code: string;
+  address: string;
+  type: "boutique" | "central_vault" | "concierge_hub";
+}
+
+export interface MedusaInventoryItem {
+  id: string;
+  product_id: number;
+  sku: string;
+  title: string;
+  category: string;
+  leather_type: string;
+  colour: string;
+  stocked_quantity: number;
+  reserved_quantity: number;
+  available_quantity: number;
+  low_stock_threshold: number;
+  unit_cost_sgd: number;
+  unit_retail_sgd: number;
+  location_levels: Array<{
+    location_id: string;
+    location_name: string;
+    stocked_quantity: number;
+    reserved_quantity: number;
+  }>;
+}
+
+export interface MedusaStockMovement {
+  id: string;
+  inventory_item_id: string;
+  sku: string;
+  product_title: string;
+  type: "RECEIPT" | "DISPATCH" | "RETURN_RESTOCK" | "DAMAGE" | "TRANSFER" | "AUDIT_ADJUSTMENT";
+  quantity_delta: number;
+  previous_stock: number;
+  new_stock: number;
+  location_id: string;
+  location_name: string;
+  actor: string;
+  notes: string;
+  created_at: string;
+}
+

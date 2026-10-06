@@ -191,29 +191,29 @@ export function EditorialHero({
                   alt={slide.title}
                   className="w-full h-full object-cover object-center"
                 />
-                {/* Cinematic Vignette Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/30 to-stone-950/20" />
+                {/* Subtle Bottom Vignette (transparent, keeps artisanal photo luminous) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 pointer-events-none" />
               </div>
             ))}
 
             {/* Top Bar: Promotion Badge & Slideshow Counter */}
-            <div className="absolute top-4 inset-x-4 flex items-center justify-between z-10">
-              <div className="flex items-center gap-2">
+            <div className="absolute top-3 inset-x-3 sm:top-4 sm:inset-x-4 flex items-center justify-between z-10 pointer-events-none">
+              <div className="flex items-center gap-2 pointer-events-auto">
                 <span
-                  className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border backdrop-blur-md shadow-md flex items-center gap-1.5 ${active.tagColor}`}
+                  className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold tracking-wider uppercase border backdrop-blur-xs shadow-sm flex items-center gap-1.5 ${active.tagColor}`}
                 >
                   <Flame className="w-3 h-3 text-amber-400" />
                   <span>{active.tag}</span>
                 </span>
                 {active.promoCode && (
-                  <span className="hidden sm:inline-flex px-2.5 py-1 rounded-full text-[9.5px] font-mono font-bold uppercase tracking-wider bg-black/60 text-amber-300 border border-amber-500/40 backdrop-blur-md">
+                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-black/40 text-amber-300 border border-amber-500/30 backdrop-blur-xs">
                     Code: {active.promoCode}
                   </span>
                 )}
               </div>
 
               {/* Pause/Live Indicator */}
-              <div className="px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md text-stone-300 text-[10px] font-mono border border-white/10 flex items-center gap-1.5">
+              <div className="px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-xs text-stone-300 text-[9.5px] font-mono border border-white/10 flex items-center gap-1.5 pointer-events-auto">
                 <span className={`w-1.5 h-1.5 rounded-full ${isPaused ? "bg-amber-400" : "bg-emerald-400 animate-pulse"}`} />
                 <span>{currentSlide + 1} / {HERO_SLIDES.length}</span>
               </div>
@@ -222,43 +222,44 @@ export function EditorialHero({
             {/* Left / Right Navigation Arrow Buttons */}
             <button
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/75 text-white flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 backdrop-blur-sm border border-white/20 hover:scale-105"
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/30 hover:bg-black/65 text-white flex items-center justify-center transition-all opacity-70 group-hover:opacity-100 backdrop-blur-xs border border-white/20 hover:scale-105"
               title="Previous slide"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={handleNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/75 text-white flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 backdrop-blur-sm border border-white/20 hover:scale-105"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/30 hover:bg-black/65 text-white flex items-center justify-center transition-all opacity-70 group-hover:opacity-100 backdrop-blur-xs border border-white/20 hover:scale-105"
               title="Next slide"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            {/* Bottom Shelf: Promotion Narrative & CTA Button */}
-            <div className="absolute inset-x-4 bottom-4 p-4 sm:p-5 rounded-2xl bg-black/65 backdrop-blur-md border border-white/15 shadow-2xl z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-              <div className="space-y-1 max-w-md">
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">
+            {/* Compact, Transparent Bottom Corner Floating Shelf */}
+            <div className="absolute left-3 right-3 sm:right-auto sm:left-4 bottom-3 sm:bottom-4 max-w-sm sm:max-w-md p-2.5 sm:p-3 rounded-xl bg-black/30 backdrop-blur-xs border border-white/15 shadow-xl z-10">
+              <div className="flex items-center justify-between gap-2 mb-0.5">
+                <span className="text-[9px] font-bold text-amber-300/90 uppercase tracking-widest truncate">
                   {active.collection}
                 </span>
-                <h3 className="font-serif font-bold text-base sm:text-lg text-white leading-tight">
-                  {active.title}
-                </h3>
-                <p className="text-xs text-stone-300 line-clamp-1 leading-normal">
-                  {active.promoText}
-                </p>
-                <span className="text-[10px] font-medium text-emerald-400 block pt-0.5">
-                  {active.priceNote}
+                <span className="text-[9.5px] font-medium text-emerald-300/90 shrink-0">
+                  {active.priceNote.split("•")[0]?.trim()}
                 </span>
               </div>
 
-              <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
+              <h3 className="font-serif font-bold text-xs sm:text-sm text-white leading-snug drop-shadow-sm truncate">
+                {active.title}
+              </h3>
+
+              <div className="mt-1.5 pt-1.5 border-t border-white/10 flex items-center justify-between gap-2.5">
+                <p className="text-[10px] text-stone-200/90 truncate max-w-[200px] sm:max-w-[260px]">
+                  {active.promoText}
+                </p>
                 <button
                   onClick={onExploreCreations}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-[#C5A059] hover:bg-[#b08e4c] text-stone-950 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0"
+                  className="px-2.5 py-1 bg-[#C5A059]/90 hover:bg-[#C5A059] text-stone-950 rounded-lg text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1 shrink-0"
                 >
                   <span>{active.ctaText}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
             </div>

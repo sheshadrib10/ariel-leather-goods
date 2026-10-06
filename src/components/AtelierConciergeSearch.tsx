@@ -46,6 +46,26 @@ export function AtelierConciergeSearch({
 }: AtelierConciergeSearchProps) {
   const [query, setQuery] = useState("");
   const [showUnderstoodDetails, setShowUnderstoodDetails] = useState(false);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+  // Autofocus input and handle Escape key dismiss
+  React.useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 50);
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") onClose();
+      };
+      window.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -53,53 +73,70 @@ export function AtelierConciergeSearch({
     e.preventDefault();
     if (query.trim()) {
       onSearch(query, "auto");
+      onClose();
+      const el = document.getElementById("catalog-section");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
     }
+  };
+
+  const handlePromptSelect = (promptText: string) => {
+    setQuery(promptText);
+    onSearch(promptText, "auto");
+    onClose();
+    const el = document.getElementById("catalog-section");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   const intent = searchResult?.intent;
 
   return (
-    <div className="bg-white border-b border-ariel-tan/30 shadow-lg animate-fadeIn py-6 px-4">
-      <div className="container mx-auto max-w-4xl relative">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm animate-fadeIn flex items-start justify-center pt-16 sm:pt-24 pb-12 px-4">
+      {/* Background click to dismiss */}
+      <div className="fixed inset-0 -z-10" onClick={onClose} aria-hidden="true" />
+
+      {/* Main Search Dialog Container */}
+      <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-ariel-tan/40 p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200">
         <button
           onClick={onClose}
-          className="absolute -top-2 right-0 text-gray-400 hover:text-ariel-espresso p-1.5 rounded-full hover:bg-ariel-sand transition-colors"
+          className="absolute top-5 right-5 text-gray-400 hover:text-ariel-espresso p-2 rounded-full hover:bg-ariel-sand transition-colors"
+          title="Close search modal"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="text-center mb-4">
-          <div className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase text-ariel-saddle bg-ariel-sand/60 px-3 py-0.5 rounded-full mb-1">
-            <Sparkles className="w-3 h-3 text-ariel-amber" />
+        <div className="text-center mb-5">
+          <div className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase text-ariel-saddle bg-ariel-sand/60 px-3 py-1 rounded-full mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-ariel-amber" />
             <span>Atelier Discovery Concierge</span>
           </div>
-          <h3 className="font-serif text-xl sm:text-2xl font-bold text-ariel-espresso">
+          <h3 className="font-serif text-2xl sm:text-3xl font-bold text-ariel-espresso">
             What creation may we curate for you today?
           </h3>
-          <p className="text-xs text-gray-500 max-w-md mx-auto">
-            Search naturally by recipient, budget, occasion, or style.
+          <p className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto mt-1">
+            Search naturally by recipient, budget, occasion, or leather patina.
           </p>
         </div>
 
         {/* Search Bar */}
         <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto mb-4">
-          <div className="flex items-center gap-2 bg-ariel-sand/40 border border-ariel-tan/40 rounded-2xl p-2 focus-within:ring-1 focus-within:ring-ariel-amber focus-within:bg-white transition-all shadow-sm">
+          <div className="flex items-center gap-2 bg-ariel-sand/40 border border-ariel-tan/40 rounded-2xl p-2.5 focus-within:ring-2 focus-within:ring-ariel-amber focus-within:bg-white transition-all shadow-sm">
             <div className="pl-3 text-ariel-cognac">
               <Search className="w-5 h-5" />
             </div>
 
             <input
+              ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g. 'I need a premium-looking leather gift for my dad, around S$200'..."
-              className="w-full bg-transparent text-xs sm:text-sm text-ariel-espresso placeholder-gray-400 px-2 py-2 focus:outline-none font-medium"
+              className="w-full bg-transparent text-xs sm:text-sm text-ariel-espresso placeholder-gray-400 px-2 py-1.5 focus:outline-none font-medium"
             />
 
             <button
               type="button"
               onClick={onOpenVisualSearch}
-              className="hidden sm:flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-ariel-cognac bg-white px-2.5 py-1.5 rounded-xl border border-ariel-tan/30 hover:bg-ariel-sand transition-colors shrink-0"
+              className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-ariel-cognac bg-white px-3 py-2 rounded-xl border border-ariel-tan/30 hover:bg-ariel-sand transition-colors shrink-0 shadow-2xs"
               title="Search by image or visual silhouette"
             >
               <Compass className="w-3.5 h-3.5 text-ariel-amber" />
@@ -109,7 +146,7 @@ export function AtelierConciergeSearch({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-5 py-2.5 bg-ariel-espresso hover:bg-ariel-cognac text-ariel-sand rounded-xl text-xs font-bold uppercase tracking-wider transition-all shrink-0 flex items-center gap-1.5 disabled:opacity-50"
+              className="px-5 py-2.5 bg-ariel-espresso hover:bg-ariel-cognac text-ariel-sand rounded-xl text-xs font-bold uppercase tracking-wider transition-all shrink-0 flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
             >
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-ariel-sand border-t-transparent rounded-full animate-spin" />
@@ -129,11 +166,9 @@ export function AtelierConciergeSearch({
           {CONCIERGE_PROMPTS.map((p, i) => (
             <button
               key={i}
-              onClick={() => {
-                setQuery(p.prompt);
-                onSearch(p.prompt, "auto");
-              }}
-              className="px-3 py-1 rounded-full bg-white hover:bg-ariel-sand border border-ariel-tan/30 text-[11px] text-ariel-espresso font-medium transition-all shadow-2xs hover:border-ariel-amber"
+              type="button"
+              onClick={() => handlePromptSelect(p.prompt)}
+              className="px-3 py-1.5 rounded-full bg-white hover:bg-ariel-sand border border-ariel-tan/30 text-[11px] text-ariel-espresso font-medium transition-all shadow-2xs hover:border-ariel-amber"
             >
               {p.label}
             </button>
