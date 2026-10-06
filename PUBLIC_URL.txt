@@ -1,17 +1,17 @@
-Ariel Leather Goods - Public Production URL
+Ariel Leather Goods - Production Deployment
 ==================================================
-24/7 Permanent Global & Singapore URL (Hosted on Cloudflare Pages):
+24/7 Storefront URL (Hosted on Cloudflare Pages):
 👉 https://ariel-leather-goods.pages.dev
 
-Deployment Preview Hash URL:
-👉 https://d95183bd.ariel-leather-goods.pages.dev
+Uncle's Single-Merchant Atelier Cockpit:
+👉 https://ariel-leather-goods.pages.dev/admin
 
-Key Highlights:
-- Always Online: Operates 24/7 even when your laptop is switched completely off.
-- 100% Free Hosting: $0.00/month on Cloudflare Pages.
-- Preserved Projects: Your existing 'shulo' and 'shulo-corporate' are untouched.
-- Medusa Core Active: Domestic Singapore 9% GST, White-Glove courier, MBS Boutique pickup, discounts, orders.
-- Hybrid Vector Search: 1024-D semantic embeddings and attribute filters.
+Key Native Modules Active:
+- Payment Gateway: HitPay Singapore (PayNow SGQR, Credit Cards, Apple Pay, GrabPay)
+- Logistics & Fulfillment: EasyParcel (Lalamove Same-Day White Glove, Ninja Van, SingPost, AWB Shipping Labels)
+- Shopper Authentication: Google (Gmail) SSO, Facebook SSO, Atelier Email
+- Merchant Control Suite: Orders lifecycle, live pricing, stock per location, promo codes, customer CRM
+- Quiet Luxury Storefront: Florentine lookbook, bespoke gold hot-stamping, 0 developer backend leaks
 
 GitHub Repository:
 https://github.com/sheshadrib10/ariel-leather-goods
