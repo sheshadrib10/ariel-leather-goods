@@ -6,12 +6,16 @@ Ariel Leather Goods - Production Deployment
 Uncle's Single-Merchant Atelier Cockpit:
 👉 https://ariel-leather-goods.pages.dev/admin
 
-Key Native Modules Active:
-- Payment Gateway: HitPay Singapore (PayNow SGQR, Credit Cards, Apple Pay, GrabPay)
-- Logistics & Fulfillment: EasyParcel (Lalamove Same-Day White Glove, Ninja Van, SingPost, AWB Shipping Labels)
-- Shopper Authentication: Google (Gmail) SSO, Facebook SSO, Atelier Email
-- Merchant Control Suite: Orders lifecycle, live pricing, stock per location, promo codes, customer CRM
-- Quiet Luxury Storefront: Florentine lookbook, bespoke gold hot-stamping, 0 developer backend leaks
+Latest Deployment Snapshot:
+👉 https://b70c7b79.ariel-leather-goods.pages.dev
+
+Key Enterprise Modules Active:
+- Brand Visual Identity: Handcrafted gold crest emblem & monogram at top-left corner
+- Singapore Tax Compliance: 9% IRAS GST itemization, UEN 202619482M, GST Reg M90382710X, instant tax invoices
+- Singapore Delivery Rates: EasyParcel White-Glove (Lalamove Same-Day S$15), Express (Ninja Van S$6), SingPost (S$4), MBS Salon (#01-42 S$0), free over S$150
+- Uncle's Patron CRM & PDPA Hub: Detailed customer dossier, order history, HitPay transactions, refund engine, search logs, internal notes, DSAR data export, erasure
+- Shopper Auth & Password Reset: Email/password, 6-digit Atelier security PIN reset, Google (Gmail) SSO, Facebook SSO, PDPA consent & DNC opt-in toggles
+- Catalog Management: Full listing creation, editing, 1-click duplication, archiving, multi-location stock control
 
 GitHub Repository:
 https://github.com/sheshadrib10/ariel-leather-goods
