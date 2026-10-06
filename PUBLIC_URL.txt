@@ -1,0 +1,10 @@
+Ariel Leather Goods - Public Preview URL
+===========================================
+Live URL for Singapore / Global Access:
+https://appreciated-biological-treasurer-matthew.trycloudflare.com
+
+Local URL:
+http://localhost:3000
+
+GitHub Repository:
+https://github.com/sheshadrib10/ariel-leather-goods
