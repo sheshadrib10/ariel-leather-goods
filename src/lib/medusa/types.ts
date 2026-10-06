@@ -98,3 +98,4 @@ export interface MedusaOrder {
   tracking_number?: string;
   created_at: string;
 }
+

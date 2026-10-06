@@ -9,3 +9,4 @@ export async function GET() {
     default_region: "reg_sg",
   });
 }
+

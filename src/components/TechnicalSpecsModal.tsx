@@ -152,3 +152,4 @@ export function TechnicalSpecsModal({ isOpen, onClose }: TechnicalSpecsModalProp
     </div>
   );
 }
+
