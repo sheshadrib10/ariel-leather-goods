@@ -8,9 +8,9 @@ export function getDbPool(): Pool {
   if (!pool) {
     const connectionString =
       process.env.DATABASE_URL ||
-      `postgresql://${process.env.PGUSER || "postgres"}:${process.env.PGPASSWORD || "postgres"}@${
+      `postgresql://${process.env.PGUSER || "postgres"}:${process.env.PGPASSWORD || "postgrespassword"}@${
         process.env.PGHOST || "127.0.0.1"
-      }:${process.env.PGPORT || "32801"}/${process.env.PGDATABASE || "shulo"}`;
+      }:${process.env.PGPORT || "5432"}/${process.env.PGDATABASE || "ariel_db"}`;
 
     pool = new Pool({
       connectionString,

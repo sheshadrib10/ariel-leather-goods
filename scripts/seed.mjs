@@ -529,7 +529,7 @@ const PRODUCTS = [
 async function seed() {
   const connectionString =
     process.env.DATABASE_URL ||
-    `postgresql://postgres:postgres@127.0.0.1:32801/shulo`;
+    `postgresql://postgres:postgrespassword@127.0.0.1:5432/ariel_db`;
 
   console.log(`Connecting to PostgreSQL + pgvector at: ${connectionString.replace(/:[^:@]+@/, ":***@")}...`);
 

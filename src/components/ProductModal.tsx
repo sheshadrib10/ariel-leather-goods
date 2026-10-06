@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Star, Shield, Check, Plus, Package, Sparkles, Compass } from "lucide-react";
+import { X, Star, Shield, Check, Plus, Gift, Compass } from "lucide-react";
 import { RankedProduct } from "@/lib/search-engine";
 
 interface ProductModalProps {
   product: RankedProduct | null;
   currency: "SGD" | "USD";
   onClose: () => void;
-  onAddToCart: (product: RankedProduct) => void;
+  onAddToCartWithMonogram: (product: RankedProduct, monogram?: { text: string; foil: string }) => void;
   onFindSimilar: (product: RankedProduct) => void;
 }
 
@@ -16,10 +16,13 @@ export function ProductModal({
   product,
   currency,
   onClose,
-  onAddToCart,
+  onAddToCartWithMonogram,
   onFindSimilar,
 }: ProductModalProps) {
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [monogramText, setMonogramText] = useState("");
+  const [monogramFoil, setMonogramFoil] = useState<"gold" | "blind" | "silver">("gold");
+  const [enableMonogram, setEnableMonogram] = useState(false);
   const [added, setAdded] = useState(false);
 
   if (!product) return null;
@@ -28,9 +31,17 @@ export function ProductModal({
   const price = currency === "SGD" ? `S$${product.price_sgd}` : `$${product.price_usd}`;
 
   const handleAdd = () => {
-    onAddToCart(product);
+    onAddToCartWithMonogram(
+      product,
+      enableMonogram && monogramText.trim()
+        ? { text: monogramText.trim().toUpperCase(), foil: monogramFoil }
+        : undefined
+    );
     setAdded(true);
-    setTimeout(() => setAdded(false), 1600);
+    setTimeout(() => {
+      setAdded(false);
+      onClose();
+    }, 1200);
   };
 
   return (
@@ -43,7 +54,7 @@ export function ProductModal({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Left Column: Image Gallery */}
+        {/* Left Column: Image Gallery & Silhouette Discovery */}
         <div className="w-full md:w-1/2 p-6 bg-ariel-sand/30 flex flex-col justify-between">
           <div className="aspect-square rounded-2xl overflow-hidden shadow-inner bg-white border border-ariel-tan/20 relative">
             <img
@@ -51,9 +62,26 @@ export function ProductModal({
               alt={product.title}
               className="w-full h-full object-cover object-center"
             />
-            <div className="absolute top-3 left-3 bg-ariel-espresso/90 text-ariel-goldLight px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+            <div className="absolute top-3 left-3 bg-ariel-espresso/90 text-ariel-sand px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
               {product.leather_type}
             </div>
+
+            {/* Live Monogram Stamp Overlay Preview */}
+            {enableMonogram && monogramText.trim() && (
+              <div className="absolute bottom-4 right-4 bg-ariel-espresso/90 border border-ariel-gold/50 px-3 py-1.5 rounded-lg shadow-lg">
+                <span
+                  className={`font-serif text-sm font-bold tracking-[0.2em] uppercase ${
+                    monogramFoil === "gold"
+                      ? "text-ariel-gold drop-shadow"
+                      : monogramFoil === "silver"
+                      ? "text-gray-200 drop-shadow"
+                      : "text-amber-950 font-black"
+                  }`}
+                >
+                  {monogramText.toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Gallery Thumbnails */}
@@ -73,22 +101,22 @@ export function ProductModal({
             </div>
           )}
 
-          {/* Multimodal Quick Search button */}
+          {/* Similar Discovery Trigger */}
           <div className="mt-4 pt-4 border-t border-ariel-tan/20">
             <button
               onClick={() => {
                 onClose();
                 onFindSimilar(product);
               }}
-              className="w-full py-2.5 px-4 rounded-xl border border-ariel-amber/50 bg-white/80 hover:bg-white text-ariel-cognac text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all"
+              className="w-full py-2.5 px-4 rounded-xl border border-ariel-tan/40 bg-white/80 hover:bg-white text-ariel-cognac text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-all"
             >
               <Compass className="w-4 h-4 text-ariel-amber" />
-              <span>Find Semantically Similar Products</span>
+              <span>Discover Creations with Matching Silhouette</span>
             </button>
           </div>
         </div>
 
-        {/* Right Column: Craftsmanship & Specs */}
+        {/* Right Column: Craftsmanship & Customization */}
         <div className="w-full md:w-1/2 p-6 sm:p-8 flex flex-col justify-between">
           <div>
             {/* Category & Rating */}
@@ -111,11 +139,11 @@ export function ProductModal({
               <span className="text-2xl font-serif font-bold text-ariel-cognac">
                 {price}
               </span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-400">
                 {currency === "SGD" ? `(≈ USD $${product.price_usd})` : `(≈ SGD S$${product.price_sgd})`}
               </span>
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-wider">
-                In Stock ({product.inventory_count} Available)
+                In Stock &bull; Singapore Courier
               </span>
             </div>
 
@@ -124,56 +152,80 @@ export function ProductModal({
               {product.description}
             </p>
 
-            {/* Craftsmanship Note */}
-            <div className="bg-white/80 p-3.5 rounded-xl border border-ariel-tan/30 mb-4 text-xs text-ariel-espresso">
+            {/* Complimentary Bespoke Monogramming Customizer */}
+            <div className="bg-white p-4 rounded-2xl border border-ariel-tan/30 mb-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Gift className="w-4 h-4 text-ariel-amber" />
+                  <span className="font-bold text-xs uppercase tracking-wider text-ariel-espresso">
+                    Complimentary Monogramming
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={enableMonogram}
+                  onChange={(e) => setEnableMonogram(e.target.checked)}
+                  className="rounded accent-ariel-amber cursor-pointer"
+                />
+              </div>
+
+              {enableMonogram && (
+                <div className="pt-2 border-t border-gray-100 space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      maxLength={3}
+                      value={monogramText}
+                      onChange={(e) => setMonogramText(e.target.value.toUpperCase())}
+                      placeholder="INITIALS (e.g. SB)"
+                      className="w-1/2 text-center font-serif uppercase tracking-widest text-xs border border-ariel-tan/40 rounded-xl px-3 py-2 bg-ariel-sand/20"
+                    />
+                    <div className="w-1/2 flex gap-1">
+                      {(["gold", "blind", "silver"] as const).map((foil) => (
+                        <button
+                          key={foil}
+                          onClick={() => setMonogramFoil(foil)}
+                          className={`flex-1 py-1 text-[10px] font-bold uppercase rounded-lg border transition-all ${
+                            monogramFoil === foil
+                              ? "bg-ariel-espresso text-ariel-sand border-ariel-espresso"
+                              : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                          }`}
+                        >
+                          {foil === "blind" ? "Blind" : foil}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-gray-400">
+                    Hand-stamped in Florence with brass letterpress typefaces.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Artisanal Provenance */}
+            <div className="bg-ariel-sand/40 p-3 rounded-xl border border-ariel-tan/20 mb-4 text-xs">
               <h4 className="font-bold text-ariel-cognac uppercase tracking-wider text-[11px] mb-1 flex items-center gap-1.5">
                 <Shield className="w-3.5 h-3.5 text-ariel-amber" />
-                Artisanal Hallmarks
+                Artisanal Provenance & Specifications
               </h4>
-              <p className="text-gray-600 leading-normal">
+              <p className="text-gray-600 leading-normal mb-2">
                 {product.craftsmanship_notes}
               </p>
-            </div>
-
-            {/* Specifications Grid */}
-            <div className="grid grid-cols-2 gap-2 text-xs mb-4 bg-ariel-sand/40 p-3 rounded-xl border border-ariel-tan/20">
-              <div>
-                <span className="text-gray-500 text-[11px]">Leather:</span>
-                <p className="font-semibold text-ariel-espresso">{product.material}</p>
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-500">
+                <div><span>Leather: </span><b className="text-ariel-espresso">{product.material}</b></div>
+                <div><span>Hardware: </span><b className="text-ariel-espresso">{product.hardware}</b></div>
+                <div><span>Dimensions: </span><b className="text-ariel-espresso">{product.dimensions}</b></div>
+                <div><span>Weight: </span><b className="text-ariel-espresso">{product.weight_grams} g</b></div>
               </div>
-              <div>
-                <span className="text-gray-500 text-[11px]">Hardware:</span>
-                <p className="font-semibold text-ariel-espresso">{product.hardware || "None"}</p>
-              </div>
-              <div>
-                <span className="text-gray-500 text-[11px]">Dimensions:</span>
-                <p className="font-semibold text-ariel-espresso">{product.dimensions}</p>
-              </div>
-              <div>
-                <span className="text-gray-500 text-[11px]">Weight:</span>
-                <p className="font-semibold text-ariel-espresso">{product.weight_grams} g</p>
-              </div>
-            </div>
-
-            {/* Features Bullet List */}
-            <div className="space-y-1 mb-6">
-              <span className="text-[11px] font-bold text-ariel-saddle uppercase tracking-wider block mb-1">
-                Distinguishing Features:
-              </span>
-              {product.features.map((feat, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-xs text-gray-700">
-                  <Check className="w-3.5 h-3.5 text-ariel-amber shrink-0" />
-                  <span>{feat}</span>
-                </div>
-              ))}
             </div>
           </div>
 
           {/* Add to Bag Action */}
-          <div className="pt-4 border-t border-ariel-tan/20 flex gap-3">
+          <div className="pt-4 border-t border-ariel-tan/20">
             <button
               onClick={handleAdd}
-              className={`w-full py-3.5 px-6 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 ${
+              className={`w-full py-4 px-6 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 ${
                 added
                   ? "bg-emerald-600 text-white"
                   : "bg-ariel-espresso hover:bg-ariel-cognac text-ariel-sand"
@@ -187,7 +239,7 @@ export function ProductModal({
               ) : (
                 <>
                   <Plus className="w-4 h-4" />
-                  <span>Add to Bag &bull; {price}</span>
+                  <span>Add to Shopping Bag &bull; {price}</span>
                 </>
               )}
             </button>
