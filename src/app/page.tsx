@@ -16,6 +16,7 @@ import { HeritageSection } from "@/components/HeritageSection";
 import { RankedProduct, SearchResult } from "@/lib/search-engine";
 import { MEDUSA_REGIONS } from "@/lib/medusa/store";
 import { MedusaRegion } from "@/lib/medusa/types";
+import { useAuth } from "@/lib/auth-context";
 import { ArrowUpDown, Sparkles, Filter, ChevronRight } from "lucide-react";
 
 const CATEGORIES = [
@@ -50,6 +51,8 @@ export default function HomePage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<RankedProduct[]>([]);
 
+  const { logSearchQuery } = useAuth();
+
   // Search API execution
   const performSearch = async (
     q: string = "",
@@ -66,6 +69,9 @@ export default function HomePage() {
       const res = await fetch(`/api/search?${params.toString()}`);
       const data = await res.json();
       setSearchResult(data);
+      if (q.trim()) {
+        logSearchQuery(q.trim(), data.products?.length || 0, mode);
+      }
     } catch (err) {
       console.error("Search failed:", err);
     } finally {

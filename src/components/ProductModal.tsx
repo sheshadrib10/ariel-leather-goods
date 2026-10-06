@@ -135,16 +135,26 @@ export function ProductModal({
             </h2>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3 mb-4">
-              <span className="text-2xl font-serif font-bold text-ariel-cognac">
-                {price}
-              </span>
-              <span className="text-xs text-gray-400">
-                {currency === "SGD" ? `(≈ USD $${product.price_usd})` : `(≈ SGD S$${product.price_sgd})`}
-              </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-wider">
-                In Stock &bull; Singapore Courier
-              </span>
+            <div className="space-y-1.5 mb-4">
+              <div className="flex items-baseline gap-3">
+                <span className="text-2xl font-serif font-bold text-ariel-cognac">
+                  {price}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {currency === "SGD" ? `(≈ USD $${product.price_usd})` : `(≈ SGD S$${product.price_sgd})`}
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-wider">
+                  In Stock &bull; Singapore Dispatch
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-[10.5px]">
+                <span className="text-emerald-800 font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                  Inclusive of 9% Singapore GST (Reg: 202619482M)
+                </span>
+                <span className="text-amber-800 font-semibold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                  Complimentary EasyParcel Delivery on S$150+
+                </span>
+              </div>
             </div>
 
             {/* Description */}

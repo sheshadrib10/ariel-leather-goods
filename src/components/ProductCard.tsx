@@ -119,7 +119,10 @@ export function ProductCard({
             <span className="font-serif text-base sm:text-lg font-bold text-ariel-espresso">
               {price}
             </span>
-            <span className="block text-[10px] text-gray-400 font-medium">
+            <span className="block text-[9.5px] text-emerald-800 font-medium">
+              Incl. 9% SG GST &bull; EasyParcel SG
+            </span>
+            <span className="block text-[9.5px] text-gray-400 font-medium">
               {currency === "SGD" ? `≈ USD $${product.price_usd}` : `≈ SGD S$${product.price_sgd}`}
             </span>
           </div>

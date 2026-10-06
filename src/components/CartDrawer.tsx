@@ -15,6 +15,10 @@ import {
   Building,
   Smartphone,
   Lock,
+  Printer,
+  FileText,
+  Clock,
+  Info,
 } from "lucide-react";
 import { RankedProduct } from "@/lib/search-engine";
 import { useAuth } from "@/lib/auth-context";
@@ -64,8 +68,15 @@ export function CartDrawer({
   } | null>(null);
   const [discountError, setDiscountError] = useState("");
 
-  // Singapore Delivery & Shipping Form
-  const [shippingMethod, setShippingMethod] = useState<"courier" | "mbs_pickup" | "singpost">("courier");
+  // Singapore EasyParcel Delivery Tiers
+  // courier_whiteglove = Lalamove Same-Day 4hr (S$15 standard, free over S$150)
+  // courier_express = Ninja Van / J&T Express 1-2 days (S$6 standard, free over S$150)
+  // singpost_registered = SingPost 2-3 days (S$4 standard, free over S$150)
+  // mbs_pickup = Marina Bay Sands Boutique Salon (#01-42) (S$0 always)
+  const [shippingTier, setShippingTier] = useState<
+    "courier_whiteglove" | "courier_express" | "singpost_registered" | "mbs_pickup"
+  >("courier_whiteglove");
+
   const [shippingForm, setShippingForm] = useState({
     name: currentUser?.name || "",
     email: currentUser?.email || "",
@@ -103,7 +114,7 @@ export function CartDrawer({
 
   if (!isOpen) return null;
 
-  const subtotal = items.reduce((acc, item) => {
+  const rawSubtotal = items.reduce((acc, item) => {
     const unitPrice = currency === "SGD" ? item.product.price_sgd : item.product.price_usd;
     return acc + unitPrice * item.quantity;
   }, 0);
@@ -112,18 +123,39 @@ export function CartDrawer({
   let discountAmount = 0;
   if (appliedDiscount) {
     if (appliedDiscount.type === "percentage") {
-      discountAmount = Math.round((subtotal * appliedDiscount.value) / 100);
+      discountAmount = Math.round((rawSubtotal * appliedDiscount.value) / 100);
     } else {
       discountAmount = appliedDiscount.value;
     }
   }
 
-  const freeShippingThreshold = 150;
-  const amountToFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
-  const shippingFee =
-    shippingMethod === "mbs_pickup" ? 0 : subtotal >= freeShippingThreshold || shippingMethod === "courier" ? 0 : 8;
+  const discountedItemsTotal = Math.max(0, rawSubtotal - discountAmount);
 
-  const finalTotal = Math.max(0, subtotal - discountAmount + (items.length > 0 ? shippingFee : 0));
+  // Singapore Free Delivery Threshold (S$150)
+  const freeDeliveryThreshold = 150;
+  const isComplimentaryDelivery = discountedItemsTotal >= freeDeliveryThreshold;
+  const amountToFreeDelivery = Math.max(0, freeDeliveryThreshold - discountedItemsTotal);
+
+  // Standard shipping fee table (in SGD)
+  const deliveryRates: Record<typeof shippingTier, number> = {
+    courier_whiteglove: 15,
+    courier_express: 6,
+    singpost_registered: 4,
+    mbs_pickup: 0,
+  };
+
+  const deliveryFee =
+    shippingTier === "mbs_pickup" ? 0 : isComplimentaryDelivery ? 0 : deliveryRates[shippingTier];
+
+  // Total payable in selected currency
+  const totalPayable = discountedItemsTotal + (items.length > 0 ? deliveryFee : 0);
+
+  // Singapore 9% IRAS GST Itemization (Statutory standard rate)
+  // Singapore retail prices to consumers are GST-inclusive:
+  // Taxable Base = Total / 1.09, GST (9%) = Total - Taxable Base
+  const gstRate = 0.09;
+  const taxableBase = totalPayable / (1 + gstRate);
+  const gstAmount = totalPayable - taxableBase;
 
   const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,51 +166,89 @@ export function CartDrawer({
       const res = await fetch("/api/medusa/discounts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: promoCode.trim(), subtotal }),
+        body: JSON.stringify({ code: promoCode.trim(), subtotal: rawSubtotal }),
       });
       const data = await res.json();
       if (data.valid) {
-        setAppliedDiscount(data.discount);
+        setAppliedDiscount({
+          code: data.discount.code,
+          type: data.discount.type,
+          value: data.discount.value,
+          description: data.discount.description,
+        });
         setPromoCode("");
       } else {
-        setDiscountError(data.message || "Invalid promotion code");
+        setDiscountError(data.message || "Invalid privilege code.");
       }
     } catch {
-      setDiscountError("Could not apply privilege code");
+      setDiscountError("Could not validate privilege code.");
     }
   };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (shippingForm.paymentMethod === "paynow" && !payNowConfirmed) {
+      alert("Please confirm the PayNow SGQR payment verification checkbox before completing checkout.");
+      return;
+    }
 
+    setIsSubmitting(true);
     try {
+      const courierName =
+        shippingTier === "courier_whiteglove"
+          ? "EasyParcel White-Glove (Lalamove Same-Day)"
+          : shippingTier === "courier_express"
+          ? "EasyParcel Express (Ninja Van / J&T)"
+          : shippingTier === "singpost_registered"
+          ? "SingPost Registered"
+          : "MBS Boutique Salon Pickup (#01-42)";
+
+      const hitpayProvider =
+        shippingForm.paymentMethod === "paynow"
+          ? "hitpay_paynow"
+          : shippingForm.paymentMethod === "card"
+          ? "hitpay_card"
+          : "hitpay_applepay";
+
       const orderPayload = {
-        email: shippingForm.email || "client@arielleather.com",
         cart_id: `cart_${Date.now()}`,
-        shipping_address: {
-          first_name: shippingForm.name.split(" ")[0] || "Ariel",
-          last_name: shippingForm.name.split(" ").slice(1).join(" ") || "Client",
-          address_1: `${shippingForm.address} ${shippingForm.unitNumber}`.trim(),
-          city: "Singapore",
-          postal_code: shippingForm.postalCode || "018956",
-          country_code: "SG",
-          phone: shippingForm.phone,
-        },
-        items: items.map((it) => ({
-          id: `item_${it.product.id}`,
-          title: it.product.title,
-          quantity: it.quantity,
-          unit_price: currency === "SGD" ? it.product.price_sgd : it.product.price_usd,
-          total: (currency === "SGD" ? it.product.price_sgd : it.product.price_usd) * it.quantity,
-          monogram: it.monogram,
-        })),
-        subtotal,
-        shipping_total: shippingFee,
-        discount_total: discountAmount,
-        tax_total: Number((finalTotal * 0.09).toFixed(2)),
-        total: finalTotal,
+        email: shippingForm.email || currentUser?.email || "patron@arielleather.com",
         currency_code: currency,
+        subtotal: rawSubtotal,
+        discount_total: discountAmount,
+        shipping_total: deliveryFee,
+        tax_total: Number(gstAmount.toFixed(2)),
+        total: totalPayable,
+        shipping_address: {
+          first_name: shippingForm.name.split(" ")[0] || "Valued",
+          last_name: shippingForm.name.split(" ").slice(1).join(" ") || "Patron",
+          phone: shippingForm.phone,
+          address_1:
+            shippingTier === "mbs_pickup"
+              ? "Marina Bay Sands Boutique Salon, 10 Bayfront Ave, #01-42"
+              : `${shippingForm.address}${shippingForm.unitNumber ? ` ${shippingForm.unitNumber}` : ""}`,
+          postal_code: shippingTier === "mbs_pickup" ? "018956" : shippingForm.postalCode,
+          city: "Singapore",
+          country_code: "SG",
+        },
+        items: items.map((i, idx) => ({
+          id: `item_${idx}_${Date.now()}`,
+          product_id: i.product.id,
+          title: i.product.title,
+          variant_title: `${i.product.colour} / ${i.product.leather_type}`,
+          thumbnail: i.product.image_url,
+          unit_price: currency === "SGD" ? i.product.price_sgd : i.product.price_usd,
+          quantity: i.quantity,
+          total: (currency === "SGD" ? i.product.price_sgd : i.product.price_usd) * i.quantity,
+          metadata: {
+            monogram_text: i.monogram?.text,
+            monogram_foil: i.monogram?.foil,
+            gift_packaging: giftWrap,
+          },
+        })),
+        shipping_tier: shippingTier,
+        courier_name: courierName,
+        payment_method: hitpayProvider,
       };
 
       const res = await fetch("/api/medusa/orders", {
@@ -186,7 +256,6 @@ export function CartDrawer({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),
       });
-
       const data = await res.json();
       if (data.order) {
         setConfirmedOrder(data.order);
@@ -207,11 +276,11 @@ export function CartDrawer({
         <div className="p-5 border-b border-ariel-tan/20 flex items-center justify-between">
           <div>
             <h3 className="font-serif text-lg font-bold text-ariel-espresso tracking-wide uppercase">
-              {confirmedOrder ? "Order Confirmed" : isCheckingOut ? "Bespoke Checkout" : "Shopping Bag"}
+              {confirmedOrder ? "Tax Invoice & Confirmation" : isCheckingOut ? "Bespoke Singapore Checkout" : "Shopping Bag"}
             </h3>
             <p className="text-xs text-ariel-saddle font-medium">
               {confirmedOrder
-                ? "Dispatched from Singapore Flagship Atelier"
+                ? "IRAS Registered • Ariel Leather Goods Pte Ltd (UEN: 202619482M)"
                 : `${items.length} ${items.length === 1 ? "creation" : "creations"} in your bag`}
             </p>
           </div>
@@ -223,22 +292,26 @@ export function CartDrawer({
           </button>
         </div>
 
-        {/* Singapore Free Courier Progress (When not in checkout) */}
+        {/* Singapore Free Courier Progress (When not in checkout & not confirmed) */}
         {!isCheckingOut && !confirmedOrder && items.length > 0 && (
           <div className="px-5 py-3 bg-ariel-sand/50 border-b border-ariel-tan/20 text-xs">
             <div className="flex items-center justify-between font-semibold mb-1">
               <span className="flex items-center gap-1.5 text-ariel-cognac">
                 <Truck className="w-3.5 h-3.5 text-ariel-amber" />
-                Singapore White-Glove Courier
+                Singapore White-Glove Courier Delivery
               </span>
               <span className="text-ariel-espresso">
-                {amountToFreeShipping === 0 ? "Complimentary" : `Add S$${amountToFreeShipping}`}
+                {isComplimentaryDelivery ? (
+                  <span className="text-emerald-800 font-bold">Complimentary (S$150+ unlocked)</span>
+                ) : (
+                  <span>Add S${amountToFreeDelivery} for Free Delivery</span>
+                )}
               </span>
             </div>
             <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
               <div
                 className="bg-ariel-amber h-full transition-all duration-500 rounded-full"
-                style={{ width: `${Math.min(100, (subtotal / freeShippingThreshold) * 100)}%` }}
+                style={{ width: `${Math.min(100, (discountedItemsTotal / freeDeliveryThreshold) * 100)}%` }}
               />
             </div>
           </div>
@@ -247,77 +320,168 @@ export function CartDrawer({
         {/* Main Content Area */}
         <div className="p-5 overflow-y-auto flex-1 space-y-4">
           {confirmedOrder ? (
-            /* ORDER CONFIRMATION VIEW */
-            <div className="py-6 space-y-6 text-center">
-              <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto shadow-sm">
-                <Check className="w-9 h-9" />
-              </div>
-
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-                  Payment Captured &bull; Commission Accepted
-                </span>
-                <h4 className="font-serif text-2xl font-bold text-ariel-espresso mt-3">
-                  Thank You, {shippingForm.name.split(" ")[0]}
-                </h4>
-                <p className="text-xs text-gray-600 mt-1">
-                  Your bespoke creation has entered final inspection and dispatch.
+            /* OFFICIAL SINGAPORE TAX INVOICE & ORDER CONFIRMATION */
+            <div className="py-2 space-y-5 text-left text-xs">
+              <div className="text-center pb-3 border-b border-gray-200">
+                <div className="w-14 h-14 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-2 shadow-xs">
+                  <Check className="w-8 h-8" />
+                </div>
+                <h4 className="font-serif text-xl font-bold text-ariel-espresso">Commission Confirmed</h4>
+                <p className="text-[11px] text-gray-500">
+                  Official Singapore Tax Invoice generated &bull; Payment Captured via HitPay
                 </p>
               </div>
 
-              <div className="bg-white p-4 rounded-2xl border border-ariel-tan/30 text-xs text-left space-y-2">
-                <div className="flex justify-between font-semibold">
-                  <span className="text-gray-500">Order Reference</span>
-                  <span className="font-mono text-ariel-espresso">#{confirmedOrder.display_id}</span>
+              {/* Tax Invoice Box */}
+              <div className="bg-white p-5 rounded-2xl border border-ariel-tan/40 shadow-xs space-y-4">
+                <div className="flex justify-between items-start pb-3 border-b border-gray-100">
+                  <div>
+                    <span className="font-serif text-sm font-bold text-ariel-espresso tracking-wider uppercase block">
+                      ARIEL LEATHER GOODS PTE LTD
+                    </span>
+                    <span className="text-[10px] text-gray-500 block">Marina Bay Sands #01-42, Singapore 018956</span>
+                    <span className="text-[10px] text-gray-500 font-mono block">
+                      UEN: 202619482M &bull; GST Reg: M90382710X
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200">
+                      TAX INVOICE
+                    </span>
+                    <span className="block font-mono text-xs font-bold text-ariel-espresso mt-1">
+                      #{confirmedOrder.display_id}
+                    </span>
+                    <span className="text-[10px] text-gray-400 block">
+                      {new Date(confirmedOrder.created_at).toLocaleDateString("en-SG", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between font-semibold">
-                  <span className="text-gray-500">Courier Tracking</span>
-                  <span className="font-mono text-ariel-amber">{confirmedOrder.tracking_number}</span>
+
+                {/* Dispatch & Delivery Details */}
+                <div className="grid grid-cols-2 gap-3 text-[11px] py-1">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-gray-400 block">Patron & Address</span>
+                    <span className="font-semibold text-gray-800 block">
+                      {confirmedOrder.shipping_address.first_name} {confirmedOrder.shipping_address.last_name}
+                    </span>
+                    <span className="text-gray-600 block">{confirmedOrder.shipping_address.address_1}</span>
+                    <span className="text-gray-500 block">{confirmedOrder.shipping_address.phone}</span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-gray-400 block">Logistics & Courier</span>
+                    <span className="font-semibold text-ariel-espresso block">
+                      {confirmedOrder.easyparcel_courier || "EasyParcel Dispatch"}
+                    </span>
+                    <span className="font-mono text-emerald-700 block">
+                      AWB: {confirmedOrder.easyparcel_awb || confirmedOrder.tracking_number}
+                    </span>
+                    <span className="text-[10px] text-gray-400 block">
+                      HitPay Ref: {confirmedOrder.hitpay_reference || "HITPAY-SG-LIVE"}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between font-semibold">
-                  <span className="text-gray-500">Delivery Address</span>
-                  <span className="text-ariel-espresso text-right max-w-[200px] truncate">
-                    {confirmedOrder.shipping_address.address_1}, Singapore
-                  </span>
+
+                {/* Line Items Table */}
+                <div className="pt-2 border-t border-gray-100">
+                  <table className="w-full text-[11px]">
+                    <thead>
+                      <tr className="text-[9px] uppercase tracking-wider text-gray-400 border-b border-gray-100 pb-1">
+                        <th className="text-left font-semibold py-1">Creation</th>
+                        <th className="text-center font-semibold py-1">Qty</th>
+                        <th className="text-right font-semibold py-1">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {confirmedOrder.items.map((item, idx) => (
+                        <tr key={idx} className="py-1.5">
+                          <td className="py-1.5 pr-2">
+                            <span className="font-semibold text-gray-800 block">{item.title}</span>
+                            {item.metadata?.monogram_text && (
+                              <span className="text-[9px] text-amber-700 font-mono">
+                                Monogram: [{item.metadata.monogram_text}] ({item.metadata.monogram_foil} foil)
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-1.5 text-center text-gray-600">{item.quantity}</td>
+                          <td className="py-1.5 text-right font-mono font-medium text-gray-800">
+                            S${item.total.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <div className="flex justify-between font-semibold pt-2 border-t border-gray-100">
-                  <span className="text-gray-500">Total Charged</span>
-                  <span className="font-serif font-bold text-ariel-espresso text-sm">
-                    {currency === "SGD" ? "S$" : "$"}{confirmedOrder.total}
-                  </span>
+
+                {/* Statutory Tax & Delivery Itemization */}
+                <div className="pt-3 border-t border-gray-200 space-y-1.5 text-[11px]">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Taxable Items Subtotal (Net pre-tax)</span>
+                    <span className="font-mono">S${(taxableBase - (deliveryFee / 1.09)).toFixed(2)}</span>
+                  </div>
+
+                  <div className="flex justify-between text-gray-600">
+                    <span>EasyParcel Dispatch / Delivery</span>
+                    <span className="font-mono font-semibold">
+                      {confirmedOrder.shipping_total === 0 ? "Complimentary (S$0.00)" : `S$${confirmedOrder.shipping_total.toFixed(2)}`}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between text-emerald-800 font-medium bg-emerald-50/70 p-1.5 rounded-lg">
+                    <span>Singapore 9% IRAS GST (Reg: 202619482M)</span>
+                    <span className="font-mono font-bold">S${gstAmount.toFixed(2)}</span>
+                  </div>
+
+                  <div className="flex justify-between text-sm font-serif font-bold text-ariel-espresso pt-2 border-t border-gray-200">
+                    <span>Total Amount Paid (SGD)</span>
+                    <span className="font-mono">S${confirmedOrder.total.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-3 bg-amber-50/60 border border-amber-200/60 rounded-xl text-[11px] text-amber-900 text-left">
-                <p className="font-semibold mb-0.5">Singapore Dispatch Schedule:</p>
-                <p className="text-gray-600">
-                  White-glove delivery scheduled for today by 7:00 PM. A tracking SMS has been transmitted to {shippingForm.phone}.
-                </p>
-              </div>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="flex-1 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-bold uppercase tracking-wider text-[11px] flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                >
+                  <Printer className="w-3.5 h-3.5 text-gray-500" />
+                  <span>Print Tax Invoice</span>
+                </button>
 
-              <button
-                onClick={() => {
-                  setConfirmedOrder(null);
-                  setIsCheckingOut(false);
-                  onClose();
-                }}
-                className="w-full py-3 bg-ariel-espresso hover:bg-ariel-cognac text-ariel-sand rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
-              >
-                Return to Atelier Collection
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmedOrder(null);
+                    setIsCheckingOut(false);
+                    onClose();
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-ariel-espresso hover:bg-ariel-cognac text-ariel-sand font-bold uppercase tracking-wider text-[11px] text-center shadow-xs transition-colors"
+                >
+                  <span>Return to Atelier</span>
+                </button>
+              </div>
             </div>
           ) : isCheckingOut ? (
-            /* CHECKOUT FORM VIEW */
+            /* BESPOKE CHECKOUT FORM */
             <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-5 text-xs">
-              {/* Delivery Details */}
+              {/* Delivery Address Section */}
               <div className="space-y-3">
-                <h4 className="font-bold text-ariel-espresso uppercase tracking-wider text-[11px] pb-1 border-b border-ariel-tan/20">
-                  1. Singapore Recipient & Delivery
-                </h4>
+                <div className="flex items-center justify-between pb-1 border-b border-ariel-tan/20">
+                  <h4 className="font-bold text-ariel-espresso uppercase tracking-wider text-[11px]">
+                    1. Singapore Delivery Destination
+                  </h4>
+                  <span className="text-[10px] text-gray-500">Singapore Residential & Office</span>
+                </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+                    <label className="block text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-1">
                       Recipient Name *
                     </label>
                     <input
@@ -325,12 +489,12 @@ export function CartDrawer({
                       required
                       value={shippingForm.name}
                       onChange={(e) => setShippingForm({ ...shippingForm, name: e.target.value })}
-                      placeholder="e.g. Somnath B."
+                      placeholder="e.g. Alexander Tan"
                       className="w-full bg-white border border-ariel-tan/40 rounded-xl px-3 py-2 text-ariel-espresso focus:outline-none focus:ring-1 focus:ring-ariel-amber"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+                    <label className="block text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-1">
                       Email Address *
                     </label>
                     <input
@@ -338,7 +502,7 @@ export function CartDrawer({
                       required
                       value={shippingForm.email}
                       onChange={(e) => setShippingForm({ ...shippingForm, email: e.target.value })}
-                      placeholder="client@singapore.com"
+                      placeholder="alexander@atelier.sg"
                       className="w-full bg-white border border-ariel-tan/40 rounded-xl px-3 py-2 text-ariel-espresso focus:outline-none focus:ring-1 focus:ring-ariel-amber"
                     />
                   </div>
@@ -346,8 +510,8 @@ export function CartDrawer({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
-                      Mobile (+65) *
+                    <label className="block text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+                      Singapore Mobile (+65) *
                     </label>
                     <input
                       type="tel"
@@ -359,8 +523,8 @@ export function CartDrawer({
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
-                      Singapore Postal Code *
+                    <label className="block text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+                      6-Digit Postal Code *
                     </label>
                     <input
                       type="text"
@@ -368,7 +532,7 @@ export function CartDrawer({
                       maxLength={6}
                       value={shippingForm.postalCode}
                       onChange={(e) => setShippingForm({ ...shippingForm, postalCode: e.target.value })}
-                      placeholder="248648"
+                      placeholder="018980"
                       className="w-full bg-white border border-ariel-tan/40 rounded-xl px-3 py-2 text-ariel-espresso focus:outline-none focus:ring-1 focus:ring-ariel-amber"
                     />
                   </div>
@@ -376,7 +540,7 @@ export function CartDrawer({
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="col-span-2">
-                    <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+                    <label className="block text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-1">
                       Street Address *
                     </label>
                     <input
@@ -384,68 +548,144 @@ export function CartDrawer({
                       required
                       value={shippingForm.address}
                       onChange={(e) => setShippingForm({ ...shippingForm, address: e.target.value })}
-                      placeholder="24 Orchard Boulevard"
+                      placeholder="18 Marina Boulevard"
                       className="w-full bg-white border border-ariel-tan/40 rounded-xl px-3 py-2 text-ariel-espresso focus:outline-none focus:ring-1 focus:ring-ariel-amber"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+                    <label className="block text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-1">
                       Unit
                     </label>
                     <input
                       type="text"
                       value={shippingForm.unitNumber}
                       onChange={(e) => setShippingForm({ ...shippingForm, unitNumber: e.target.value })}
-                      placeholder="#18-02"
+                      placeholder="#22-08"
                       className="w-full bg-white border border-ariel-tan/40 rounded-xl px-3 py-2 text-ariel-espresso focus:outline-none focus:ring-1 focus:ring-ariel-amber"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Shipping Method - EasyParcel Singapore */}
+              {/* EasyParcel Singapore Delivery Tiers Selection */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between pb-1 border-b border-ariel-tan/20">
                   <h4 className="font-bold text-ariel-espresso uppercase tracking-wider text-[11px]">
-                    2. EasyParcel Singapore Dispatch
+                    2. EasyParcel Logistics & Delivery Option
                   </h4>
-                  <span className="text-[10px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded font-semibold border border-amber-200">
-                    EasyParcel Aggregated Logistics
+                  <span className="text-[10px] text-amber-900 bg-amber-50 px-2 py-0.5 rounded font-semibold border border-amber-200">
+                    Live Rates
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShippingMethod("courier")}
-                    className={`p-2.5 rounded-xl border text-left text-[11px] transition-all ${
-                      shippingMethod === "courier"
+                <div className="space-y-2">
+                  {/* Tier 1: Lalamove Same Day */}
+                  <label
+                    onClick={() => setShippingTier("courier_whiteglove")}
+                    className={`flex items-start justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                      shippingTier === "courier_whiteglove"
                         ? "bg-ariel-espresso text-ariel-sand border-ariel-espresso shadow-xs"
-                        : "bg-white border-ariel-tan/30 text-gray-700"
+                        : "bg-white border-ariel-tan/30 text-gray-700 hover:border-ariel-amber"
                     }`}
                   >
-                    <span className="font-bold block flex items-center gap-1">
-                      <Truck className="w-3.5 h-3.5 text-ariel-amber" />
-                      EasyParcel Same-Day
-                    </span>
-                    <span className="text-[10px] opacity-80">Lalamove White-Glove (S$0)</span>
-                  </button>
+                    <div className="flex items-start gap-2.5">
+                      <Truck className="w-4 h-4 text-ariel-amber shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-xs block">EasyParcel White-Glove (Lalamove Same-Day)</span>
+                        <span className="text-[10px] opacity-80 block">
+                          Direct 4-hour door-to-door temperature-controlled courier across Singapore
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0 ml-2">
+                      <span className="font-bold text-xs">
+                        {isComplimentaryDelivery ? (
+                          <span className="text-emerald-400 font-bold uppercase text-[10px]">Free</span>
+                        ) : (
+                          "S$15.00"
+                        )}
+                      </span>
+                    </div>
+                  </label>
 
-                  <button
-                    type="button"
-                    onClick={() => setShippingMethod("mbs_pickup")}
-                    className={`p-2.5 rounded-xl border text-left text-[11px] transition-all ${
-                      shippingMethod === "mbs_pickup"
+                  {/* Tier 2: Ninja Van / J&T Express */}
+                  <label
+                    onClick={() => setShippingTier("courier_express")}
+                    className={`flex items-start justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                      shippingTier === "courier_express"
                         ? "bg-ariel-espresso text-ariel-sand border-ariel-espresso shadow-xs"
-                        : "bg-white border-ariel-tan/30 text-gray-700"
+                        : "bg-white border-ariel-tan/30 text-gray-700 hover:border-ariel-amber"
                     }`}
                   >
-                    <span className="font-bold block flex items-center gap-1">
-                      <Building className="w-3.5 h-3.5 text-ariel-amber" />
-                      MBS Boutique Salon
-                    </span>
-                    <span className="text-[10px] opacity-80">Ready in 2h (#01-42)</span>
-                  </button>
+                    <div className="flex items-start gap-2.5">
+                      <Truck className="w-4 h-4 text-ariel-amber shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-xs block">EasyParcel Express (Ninja Van / J&T)</span>
+                        <span className="text-[10px] opacity-80 block">
+                          Next-business-day tracked courier dispatch
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0 ml-2">
+                      <span className="font-bold text-xs">
+                        {isComplimentaryDelivery ? (
+                          <span className="text-emerald-400 font-bold uppercase text-[10px]">Free</span>
+                        ) : (
+                          "S$6.00"
+                        )}
+                      </span>
+                    </div>
+                  </label>
+
+                  {/* Tier 3: SingPost Registered */}
+                  <label
+                    onClick={() => setShippingTier("singpost_registered")}
+                    className={`flex items-start justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                      shippingTier === "singpost_registered"
+                        ? "bg-ariel-espresso text-ariel-sand border-ariel-espresso shadow-xs"
+                        : "bg-white border-ariel-tan/30 text-gray-700 hover:border-ariel-amber"
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <FileText className="w-4 h-4 text-ariel-amber shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-xs block">SingPost Registered Parcel</span>
+                        <span className="text-[10px] opacity-80 block">2-3 working days standard tracked</span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0 ml-2">
+                      <span className="font-bold text-xs">
+                        {isComplimentaryDelivery ? (
+                          <span className="text-emerald-400 font-bold uppercase text-[10px]">Free</span>
+                        ) : (
+                          "S$4.00"
+                        )}
+                      </span>
+                    </div>
+                  </label>
+
+                  {/* Tier 4: MBS Boutique Pickup */}
+                  <label
+                    onClick={() => setShippingTier("mbs_pickup")}
+                    className={`flex items-start justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                      shippingTier === "mbs_pickup"
+                        ? "bg-ariel-espresso text-ariel-sand border-ariel-espresso shadow-xs"
+                        : "bg-white border-ariel-tan/30 text-gray-700 hover:border-ariel-amber"
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <Building className="w-4 h-4 text-ariel-amber shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-xs block">Marina Bay Sands Boutique Salon Pickup</span>
+                        <span className="text-[10px] opacity-80 block">
+                          Collect in person at The Shoppes at MBS #01-42 (Ready in 2h)
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0 ml-2">
+                      <span className="text-emerald-600 font-bold uppercase text-[10px]">Free</span>
+                    </div>
+                  </label>
                 </div>
               </div>
 
@@ -453,7 +693,7 @@ export function CartDrawer({
               <div className="space-y-3">
                 <div className="flex items-center justify-between pb-1 border-b border-ariel-tan/20">
                   <h4 className="font-bold text-ariel-espresso uppercase tracking-wider text-[11px]">
-                    3. Singapore Payment
+                    3. Singapore Payment Gateway
                   </h4>
                   <span className="text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded font-semibold border border-emerald-200 flex items-center gap-1">
                     <ShieldCheck className="w-3 h-3 text-emerald-600" />
@@ -468,7 +708,7 @@ export function CartDrawer({
                     className={`py-2 px-1 text-center font-bold text-[11px] rounded-xl border transition-all flex flex-col items-center gap-1 ${
                       shippingForm.paymentMethod === "paynow"
                         ? "bg-ariel-espresso text-ariel-sand border-ariel-espresso shadow-xs"
-                        : "bg-white border-gray-200 text-gray-600"
+                        : "bg-white border-gray-200 text-gray-600 hover:border-ariel-amber"
                     }`}
                   >
                     <QrCode className="w-4 h-4" />
@@ -481,7 +721,7 @@ export function CartDrawer({
                     className={`py-2 px-1 text-center font-bold text-[11px] rounded-xl border transition-all flex flex-col items-center gap-1 ${
                       shippingForm.paymentMethod === "card"
                         ? "bg-ariel-espresso text-ariel-sand border-ariel-espresso shadow-xs"
-                        : "bg-white border-gray-200 text-gray-600"
+                        : "bg-white border-gray-200 text-gray-600 hover:border-ariel-amber"
                     }`}
                   >
                     <CreditCard className="w-4 h-4" />
@@ -494,7 +734,7 @@ export function CartDrawer({
                     className={`py-2 px-1 text-center font-bold text-[11px] rounded-xl border transition-all flex flex-col items-center gap-1 ${
                       shippingForm.paymentMethod === "applepay"
                         ? "bg-ariel-espresso text-ariel-sand border-ariel-espresso shadow-xs"
-                        : "bg-white border-gray-200 text-gray-600"
+                        : "bg-white border-gray-200 text-gray-600 hover:border-ariel-amber"
                     }`}
                   >
                     <Smartphone className="w-4 h-4" />
@@ -502,7 +742,7 @@ export function CartDrawer({
                   </button>
                 </div>
 
-                {/* PayNow Screen */}
+                {/* HitPay PayNow SGQR Screen */}
                 {shippingForm.paymentMethod === "paynow" && (
                   <div className="p-4 bg-white border border-ariel-tan/40 rounded-2xl text-center space-y-3">
                     <div className="inline-block p-2 bg-gray-50 border border-gray-200 rounded-xl">
@@ -516,7 +756,9 @@ export function CartDrawer({
                     </div>
                     <div className="text-[11px] text-gray-600 space-y-0.5">
                       <p className="font-semibold text-ariel-espresso">Scan with OCBC, DBS PayLah!, UOB, or GrabPay</p>
-                      <p className="text-gray-500 font-mono">Amount: S${finalTotal}.00 &bull; Ref: SG-{Date.now().toString().slice(-6)}</p>
+                      <p className="text-gray-500 font-mono">
+                        Amount: S${totalPayable.toFixed(2)} (incl. 9% GST) &bull; Ref: SG-{Date.now().toString().slice(-6)}
+                      </p>
                     </div>
                     <label className="flex items-center justify-center gap-2 text-[11px] text-emerald-800 font-medium cursor-pointer">
                       <input
@@ -525,17 +767,17 @@ export function CartDrawer({
                         onChange={(e) => setPayNowConfirmed(e.target.checked)}
                         className="rounded accent-emerald-600"
                       />
-                      <span>I have scanned / simulated the PayNow transfer</span>
+                      <span>I confirm I have scanned the PayNow transfer in Singapore</span>
                     </label>
                   </div>
                 )}
 
-                {/* Credit Card Inputs */}
+                {/* HitPay Credit Card Screen */}
                 {shippingForm.paymentMethod === "card" && (
                   <div className="p-4 bg-white border border-ariel-tan/40 rounded-2xl space-y-3">
                     <div>
                       <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
-                        Card Number
+                        Card Number (Visa / Mastercard / Amex)
                       </label>
                       <div className="relative">
                         <CreditCard className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
@@ -558,7 +800,7 @@ export function CartDrawer({
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">CVV</label>
+                        <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">CVV / CVV2</label>
                         <input
                           type="password"
                           maxLength={4}
@@ -571,12 +813,14 @@ export function CartDrawer({
                   </div>
                 )}
 
-                {/* Apple Pay View */}
+                {/* Apple Pay Screen */}
                 {shippingForm.paymentMethod === "applepay" && (
                   <div className="p-4 bg-black text-white rounded-2xl text-center space-y-1">
                     <Smartphone className="w-6 h-6 mx-auto mb-1 text-white" />
-                    <p className="font-bold text-xs">Touch ID / Face ID Enabled</p>
-                    <p className="text-[10px] text-gray-400">Singapore card on file will be charged S${finalTotal}</p>
+                    <p className="font-bold text-xs">Touch ID / Face ID Enabled via HitPay</p>
+                    <p className="text-[10px] text-gray-400">
+                      Singapore card will be charged S${totalPayable.toFixed(2)} (incl. 9% GST)
+                    </p>
                   </div>
                 )}
               </div>
@@ -598,64 +842,70 @@ export function CartDrawer({
           ) : (
             /* BAG ITEMS VIEW */
             <>
-              {items.map((item) => {
-                const itemPrice = currency === "SGD" ? item.product.price_sgd : item.product.price_usd;
-                return (
+              <div className="space-y-3">
+                {items.map((item) => (
                   <div
                     key={item.product.id}
-                    className="bg-white p-3.5 rounded-2xl border border-ariel-tan/30 flex gap-3 shadow-xs"
+                    className="p-3 bg-white rounded-2xl border border-ariel-tan/30 flex gap-3 items-center shadow-2xs"
                   >
                     <img
                       src={item.product.image_url}
                       alt={item.product.title}
-                      className="w-20 h-20 rounded-xl object-cover shrink-0 border border-ariel-tan/20"
+                      className="w-16 h-16 object-cover rounded-xl border border-gray-100 shrink-0"
                     />
-                    <div className="flex-1 flex flex-col justify-between text-xs">
-                      <div>
-                        <div className="flex items-start justify-between">
-                          <h4 className="font-bold text-ariel-espresso line-clamp-1">{item.product.title}</h4>
-                          <button
-                            onClick={() => onRemoveItem(item.product.id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                        <p className="text-[11px] text-ariel-saddle">{item.product.leather_type}</p>
-                        {item.monogram && (
-                          <span className="inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200 font-serif font-bold uppercase">
-                            Monogram: {item.monogram.text} ({item.monogram.foil})
-                          </span>
-                        )}
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-serif text-sm font-bold text-ariel-espresso truncate">
+                          {item.product.title}
+                        </h4>
+                        <button
+                          onClick={() => onRemoveItem(item.product.id)}
+                          className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
 
-                      <div className="flex items-center justify-between pt-2">
-                        <div className="flex items-center border border-gray-200 rounded-lg">
+                      <p className="text-[11px] text-gray-500 truncate">
+                        {item.product.colour} &bull; {item.product.leather_type}
+                      </p>
+
+                      {item.monogram && (
+                        <span className="inline-block text-[10px] font-mono text-amber-800 bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded mt-0.5">
+                          Monogram: [{item.monogram.text}] ({item.monogram.foil})
+                        </span>
+                      )}
+
+                      <div className="flex justify-between items-center mt-2">
+                        <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                           <button
-                            onClick={() => onUpdateQuantity(item.product.id, Math.max(1, item.quantity - 1))}
-                            className="px-2 py-0.5 text-gray-600 hover:bg-gray-100"
+                            onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
+                            className="px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
                           >
                             -
                           </button>
-                          <span className="px-2 font-bold">{item.quantity}</span>
+                          <span className="px-2 text-xs font-semibold">{item.quantity}</span>
                           <button
                             onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
-                            className="px-2 py-0.5 text-gray-600 hover:bg-gray-100"
+                            className="px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
                           >
                             +
                           </button>
                         </div>
+
                         <span className="font-serif font-bold text-sm text-ariel-espresso">
-                          {currency === "SGD" ? "S$" : "$"}{itemPrice * item.quantity}
+                          {currency === "SGD" ? "S$" : "$"}
+                          {(currency === "SGD" ? item.product.price_sgd : item.product.price_usd) * item.quantity}
                         </span>
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
 
-              {/* Promo Code Input */}
-              <div className="bg-white p-3 rounded-2xl border border-ariel-tan/30 space-y-2">
+              {/* Privilege Code Input */}
+              <div className="bg-white p-3.5 rounded-2xl border border-ariel-tan/30 space-y-2">
                 <form onSubmit={handleApplyPromo} className="flex gap-2">
                   <div className="relative flex-1">
                     <Tag className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-2.5" />
@@ -706,31 +956,72 @@ export function CartDrawer({
           )}
         </div>
 
-        {/* Drawer Footer */}
+        {/* Drawer Footer with Prominent Singapore Tax & Delivery Itemization */}
         {items.length > 0 && !confirmedOrder && (
-          <div className="p-5 border-t border-ariel-tan/30 bg-white/70 space-y-3">
+          <div className="p-5 border-t border-ariel-tan/30 bg-white/95 space-y-3">
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between text-gray-600">
-                <span>Subtotal</span>
-                <span>{currency === "SGD" ? "S$" : "$"}{subtotal}</span>
+                <span>Creations Subtotal</span>
+                <span>
+                  {currency === "SGD" ? "S$" : "$"}
+                  {rawSubtotal.toFixed(2)}
+                </span>
               </div>
 
               {appliedDiscount && (
                 <div className="flex justify-between text-emerald-800 font-semibold">
                   <span>Privilege ({appliedDiscount.code})</span>
-                  <span>-{currency === "SGD" ? "S$" : "$"}{discountAmount}</span>
+                  <span>
+                    -{currency === "SGD" ? "S$" : "$"}
+                    {discountAmount.toFixed(2)}
+                  </span>
                 </div>
               )}
 
+              {/* Delivery Charge Line Item */}
               <div className="flex justify-between text-gray-600">
-                <span>Singapore Courier Delivery</span>
-                <span>{shippingFee === 0 ? "Complimentary" : `${currency === "SGD" ? "S$" : "$"}${shippingFee}`}</span>
+                <span className="flex items-center gap-1">
+                  <span>EasyParcel Singapore Delivery</span>
+                  <span className="text-[9.5px] text-gray-400">
+                    ({shippingTier === "mbs_pickup" ? "MBS Pickup" : shippingTier === "courier_whiteglove" ? "Same-Day" : "Express"})
+                  </span>
+                </span>
+                <span className="font-medium">
+                  {deliveryFee === 0 ? (
+                    <span className="text-emerald-700 font-bold uppercase text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                      Complimentary (S$0.00)
+                    </span>
+                  ) : (
+                    `${currency === "SGD" ? "S$" : "$"}${deliveryFee.toFixed(2)}`
+                  )}
+                </span>
               </div>
 
-              <div className="flex justify-between text-sm font-serif font-bold text-ariel-espresso pt-2 border-t border-gray-100">
-                <span>Estimated Total (incl. 9% GST)</span>
-                <span>{currency === "SGD" ? "S$" : "$"}{finalTotal}</span>
+              {/* Singapore 9% IRAS GST Itemization */}
+              <div className="flex justify-between text-emerald-800 font-medium bg-emerald-50/70 px-2 py-1.5 rounded-lg border border-emerald-200/50">
+                <span className="flex items-center gap-1">
+                  <Info className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Singapore 9% IRAS GST (Included)</span>
+                </span>
+                <span className="font-mono font-bold">
+                  {currency === "SGD" ? "S$" : "$"}
+                  {gstAmount.toFixed(2)}
+                </span>
               </div>
+
+              {/* Total Payable */}
+              <div className="flex justify-between text-base font-serif font-bold text-ariel-espresso pt-2 border-t border-gray-200">
+                <span>Total Amount Payable (SGD)</span>
+                <span className="text-amber-900 font-mono">
+                  {currency === "SGD" ? "S$" : "$"}
+                  {totalPayable.toFixed(2)}
+                </span>
+              </div>
+
+              {/* Singapore Tax Notice */}
+              <p className="text-[9.5px] text-gray-400 text-center pt-0.5">
+                Prices in Singapore Dollars &bull; 9% GST calculated pursuant to IRAS statutory rules (UEN: 202619482M)
+              </p>
             </div>
 
             {isCheckingOut ? (
@@ -744,7 +1035,7 @@ export function CartDrawer({
                   <div className="w-4 h-4 border-2 border-ariel-sand border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>Confirm & Pay {currency === "SGD" ? "S$" : "$"}{finalTotal}</span>
+                    <span>Confirm & Pay {currency === "SGD" ? "S$" : "$"}{totalPayable.toFixed(2)}</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}

@@ -75,13 +75,32 @@ export function Header({
       <div className="container mx-auto max-w-7xl px-4 py-4 sm:py-5 flex items-center justify-between">
         {/* Brand Logo & Origin */}
         <div className="flex-1 flex items-center">
-          <a href="/" className="inline-block group text-left">
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-[0.3em] text-ariel-espresso group-hover:text-ariel-saddle transition-colors uppercase">
-              ARIEL
-            </h1>
-            <p className="text-[9px] sm:text-[10px] tracking-[0.4em] text-ariel-saddle font-semibold uppercase -mt-0.5">
-              LEATHER GOODS &bull; FIRENZE &bull; SINGAPORE
-            </p>
+          <a href="/" className="inline-flex items-center gap-3 group text-left">
+            {/* Handcrafted Luxury Artisan Crest Logo */}
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#1C1613] via-[#2A1F1A] to-[#120E0C] border border-[#C5A059]/60 shadow-md flex items-center justify-center relative overflow-hidden group-hover:border-[#C5A059] group-hover:scale-105 transition-all">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#C5A059]/30 via-transparent to-transparent opacity-80" />
+              <svg className="w-6 h-6 text-[#C5A059] relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                {/* Crown / Artisan Guild Crest */}
+                <path d="M4 8l3 3 5-6 5 6 3-3v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z" />
+                {/* Interlocking Monogram A */}
+                <path d="M9 18l3-7 3 7" strokeWidth="1.8" />
+                <path d="M10.2 15h3.6" strokeWidth="1.8" />
+              </svg>
+            </div>
+
+            <div className="text-left">
+              <div className="flex items-center gap-2">
+                <span className="font-serif text-xl sm:text-2xl font-extrabold tracking-[0.24em] text-ariel-espresso group-hover:text-ariel-saddle transition-colors uppercase leading-none">
+                  ARIEL
+                </span>
+                <span className="text-[8.5px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200/80 hidden sm:inline-block">
+                  MBS &bull; SG
+                </span>
+              </div>
+              <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.32em] text-ariel-saddle font-bold uppercase block mt-1">
+                LEATHER GOODS &bull; FIRENZE
+              </span>
+            </div>
           </a>
         </div>
 

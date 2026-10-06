@@ -105,6 +105,67 @@ export interface MedusaOrder {
   hitpay_reference?: string;
   hitpay_payment_id?: string;
   payment_provider?: "hitpay_paynow" | "hitpay_card" | "hitpay_applepay" | "hitpay_grabpay";
+  refund_status?: "none" | "partial" | "refunded";
+  refund_amount?: number;
+  refunds?: MedusaRefund[];
   created_at: string;
 }
 
+export interface MedusaRefund {
+  id: string;
+  order_id: string;
+  amount: number;
+  currency_code: string;
+  reason: string;
+  hitpay_refund_reference: string;
+  status: "completed" | "processing";
+  restocked: boolean;
+  created_at: string;
+}
+
+export interface CustomerSearchLog {
+  id: string;
+  query: string;
+  mode: "auto" | "conventional" | "ai" | "visual";
+  results_count: number;
+  timestamp: string;
+}
+
+export interface CustomerPdpaRecord {
+  consent_given: boolean;
+  consent_timestamp: string;
+  purpose: string[]; // ["order_fulfillment", "marketing", "personalization"]
+  marketing_email_opt_in: boolean;
+  marketing_phone_opt_in: boolean; // Singapore DNC compliance
+  dsar_export_count: number;
+  last_dsar_export?: string;
+  erasure_status: "active" | "requested" | "anonymized";
+  erasure_timestamp?: string;
+}
+
+export interface MedusaCustomer {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  has_password?: boolean;
+  password_hash?: string;
+  reset_token?: string;
+  reset_token_expiry?: string;
+  provider: "email" | "google" | "facebook";
+  avatar_url?: string;
+  shipping_addresses: MedusaAddress[];
+  billing_address?: MedusaAddress;
+  monogram_initials: string;
+  monogram_foil: "gold" | "blind" | "silver";
+  orders_count: number;
+  lifetime_spend_sgd: number;
+  notes?: string;
+  tags: string[]; // ["VIP", "Frequent Collector", "Bespoke"]
+  pdpa: CustomerPdpaRecord;
+  search_history: CustomerSearchLog[];
+  refunds: MedusaRefund[];
+  created_at: string;
+  updated_at: string;
+}
