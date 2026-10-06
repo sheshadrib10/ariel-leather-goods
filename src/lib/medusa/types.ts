@@ -33,13 +33,17 @@ export interface MedusaDiscount {
 
 export interface MedusaLineItem {
   id: string;
-  product_id: number;
+  product_id?: number;
   title: string;
-  variant_title: string;
-  thumbnail: string;
+  variant_title?: string;
+  thumbnail?: string;
   unit_price: number;
   quantity: number;
   total: number;
+  monogram?: {
+    text: string;
+    foil: string;
+  };
   metadata?: {
     monogram_text?: string;
     monogram_foil?: string;
@@ -96,6 +100,11 @@ export interface MedusaOrder {
   fulfillment_status: "not_fulfilled" | "fulfilled" | "shipped";
   payment_status: "awaiting" | "captured";
   tracking_number?: string;
+  easyparcel_awb?: string;
+  easyparcel_courier?: string; // "Lalamove" | "Ninja Van" | "J&T Express" | "SingPost"
+  hitpay_reference?: string;
+  hitpay_payment_id?: string;
+  payment_provider?: "hitpay_paynow" | "hitpay_card" | "hitpay_applepay" | "hitpay_grabpay";
   created_at: string;
 }
 

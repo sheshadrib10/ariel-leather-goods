@@ -99,7 +99,7 @@ export default function HomePage() {
           execution_steps: {
             step_1_intent: { status: "completed", description: `Reference product: ${product.title}` },
             step_2_sql_filters: { status: "completed", applied_filters: ["In stock = true"], filtered_out_count: 1 },
-            step_3_semantic_search: { status: "completed", vector_provider: "Nova Multimodal (1024-D)", phrase_embedded: product.title, dimensions: 1024 },
+            step_3_semantic_search: { status: "completed", vector_provider: "Atelier Bespoke Silhouette Engine", phrase_embedded: product.title, dimensions: 1024 },
             step_4_ranking: { status: "completed", formula: "Cosine vector similarity", weights: { semantic: "40%", exact_filters: "30%", popularity: "15%", inventory: "10%", margin: "5%" } }
           },
           products: data.similar_products,
@@ -384,13 +384,19 @@ export default function HomePage() {
                 Join
               </button>
             </div>
-            <div className="pt-2">
+            <div className="pt-2 space-y-1">
+              <a
+                href="/admin"
+                className="text-[11px] text-ariel-gold hover:underline font-semibold block"
+              >
+                &rarr; Seller Portal &bull; Merchant Cockpit (Singapore)
+              </a>
               <button
                 onClick={() => setIsTechSpecsOpen(true)}
                 className="text-[10px] text-gray-500 hover:text-ariel-gold transition-colors flex items-center gap-1"
               >
                 <Sparkles className="w-3 h-3 text-ariel-gold" />
-                <span>Enterprise Architecture: Medusa + Bedrock Nova</span>
+                <span>Atelier Architecture Blueprint</span>
               </button>
             </div>
           </div>

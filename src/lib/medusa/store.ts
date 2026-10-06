@@ -9,12 +9,12 @@ export const MEDUSA_REGIONS: MedusaRegion[] = [
     tax_rate: 0.09, // 9% Singapore GST
     tax_code: "SG_GST",
     countries: ["SG"],
-    payment_providers: ["paynow", "stripe", "grabpay", "applepay"],
+    payment_providers: ["hitpay_paynow", "hitpay_card", "hitpay_applepay", "hitpay_grabpay"],
     shipping_options: [
       {
-        id: "so_sg_same_day",
-        name: "Singapore White-Glove Courier (Same-Day Delivery)",
-        price: 0, // Free if subtotal >= 150
+        id: "so_sg_easyparcel_sameday",
+        name: "EasyParcel White-Glove Courier (Same-Day Lalamove)",
+        price: 0,
         currency_code: "SGD",
         estimated_delivery: "Today by 7:00 PM (Orders before 2 PM)",
         is_default: true,
@@ -27,8 +27,15 @@ export const MEDUSA_REGIONS: MedusaRegion[] = [
         estimated_delivery: "Ready within 2 hours at MBS #01-42",
       },
       {
-        id: "so_sg_standard",
-        name: "SingPost Registered Tracked Parcel",
+        id: "so_sg_easyparcel_ninja",
+        name: "EasyParcel Express Delivery (Ninja Van / J&T)",
+        price: 0,
+        currency_code: "SGD",
+        estimated_delivery: "Next Business Day",
+      },
+      {
+        id: "so_sg_singpost",
+        name: "EasyParcel SingPost Registered Tracked Parcel",
         price: 8,
         currency_code: "SGD",
         estimated_delivery: "1-2 Business Days",

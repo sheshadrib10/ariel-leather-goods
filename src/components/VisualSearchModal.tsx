@@ -65,10 +65,10 @@ export function VisualSearchModal({
           </div>
           <div>
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-ariel-espresso">
-              Nova Multimodal Visual Search
+              Visual Silhouette & Patina Matching
             </h3>
             <p className="text-xs text-ariel-saddle font-medium">
-              Find products matching visual silhouette, patina, and leather texture
+              Curate creations matching visual silhouette, leather texture, and aesthetic style
             </p>
           </div>
         </div>
@@ -76,7 +76,7 @@ export function VisualSearchModal({
         {/* Step 1: Select Visual Reference */}
         <div className="mb-5">
           <label className="block text-xs font-bold text-ariel-cognac uppercase tracking-wider mb-2">
-            1. Select Reference Photograph or Leather Silhouette:
+            1. Select Reference Silhouette or Leather Tone:
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {SAMPLE_VISUAL_REFERENCES.map((ref, idx) => (
@@ -107,11 +107,11 @@ export function VisualSearchModal({
           </div>
         </div>
 
-        {/* Step 2: Multimodal Text Modifier */}
+        {/* Step 2: Query Modifier */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-ariel-cognac uppercase tracking-wider mb-1">
-              2. Add Multimodal Query Modifier:
+              2. Add Bespoke Refinement:
             </label>
             <input
               type="text"
@@ -121,7 +121,7 @@ export function VisualSearchModal({
               className="w-full bg-white border border-ariel-tan/40 rounded-xl px-4 py-3 text-xs sm:text-sm text-ariel-espresso focus:outline-none focus:ring-2 focus:ring-ariel-amber"
             />
             <p className="text-[11px] text-gray-500 mt-1">
-              Nova Multimodal Embeddings project image features and conversational text into the same 1024-D vector space.
+              Our bespoke match engine cross-references visual cuts, hand-burnished edges, and customer specifications.
             </p>
           </div>
 

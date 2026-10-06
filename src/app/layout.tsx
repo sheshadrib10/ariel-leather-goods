@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata: Metadata = {
-  title: "Ariel Leather Goods | Artisanal Craftsmanship & Bedrock Semantic Search",
-  description: "Bespoke Italian leather wallets, bags, belts, and accessories powered by Amazon Bedrock Nova intent reasoning and PostgreSQL pgvector semantic retrieval.",
+  title: "Ariel Leather Goods | Florentine Craftsmanship & Singapore Atelier",
+  description: "Handcrafted Tuscan full-grain leather wallets, bags, belts, and bespoke monogramming. Complimentary Singapore white-glove courier.",
 };
 
 export default function RootLayout({
@@ -22,7 +23,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans bg-ariel-cream text-ariel-espresso min-h-screen flex flex-col selection:bg-ariel-amber selection:text-white">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

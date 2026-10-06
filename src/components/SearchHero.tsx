@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Sparkles, SlidersHorizontal, ArrowRight, CornerDownLeft, Image as ImageIcon } from "lucide-react";
+import { Search, Sparkles, ArrowRight, Image as ImageIcon, Compass } from "lucide-react";
 
 interface SearchHeroProps {
   currentQuery: string;
@@ -16,27 +16,27 @@ const SAMPLE_QUERIES = [
   {
     label: "Dad's Everyday Gift (< S$200)",
     query: "I need a premium-looking leather gift for my dad, around S$200, preferably something he can use every day.",
-    badge: "Nova AI Intent",
+    badge: "Bespoke Curation",
   },
   {
     label: "Business Travel Brown Wallet",
     query: "Elegant brown wallet for business travel",
-    badge: "Semantic 1024-D",
+    badge: "Patina Match",
   },
   {
     label: "Full-Grain Italian Bags",
     query: "Show me Italian full-grain bags in dark brown",
-    badge: "Hybrid Match",
+    badge: "Heritage Leather",
   },
   {
     label: "Slim RFID Card Sleeve (< S$100)",
     query: "Slim minimalist card holder RFID under S$100",
-    badge: "Filter + Vector",
+    badge: "Minimalist Cut",
   },
   {
-    label: "Conventional 'wallet'",
+    label: "Classic Bifold Wallets",
     query: "wallet",
-    badge: "Fast Index Path",
+    badge: "Instant Catalog",
   },
 ];
 
@@ -62,16 +62,16 @@ export function SearchHero({
         {/* Brand Kicker */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ariel-sand/80 border border-ariel-tan/30 text-[11px] font-semibold text-ariel-cognac mb-4 tracking-wider uppercase">
           <Sparkles className="w-3.5 h-3.5 text-ariel-amber" />
-          <span>Amazon Bedrock Hybrid Search Architecture</span>
+          <span>Atelier Bespoke Search Concierge</span>
         </div>
 
         {/* Hero Title */}
         <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-ariel-espresso mb-3">
-          Artisanal Craft. Semantic Discovery.
+          Artisanal Craft. Bespoke Discovery.
         </h2>
         <p className="text-sm sm:text-base text-ariel-saddle/90 max-w-2xl mx-auto mb-8 font-normal leading-relaxed">
-          Search with plain natural language. Amazon Nova Micro extracts your intent,
-          while Bedrock embeddings and pgvector rank the finest Tuscan leather creations.
+          Search with plain natural language. State your recipient, occasion, budget, or preferred patina, and our
+          concierge will curate the finest Tuscan leather creations.
         </p>
 
         {/* Search Console */}
@@ -97,7 +97,7 @@ export function SearchHero({
               type="button"
               onClick={onOpenVisualSearch}
               className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-ariel-cognac bg-ariel-sand/50 hover:bg-ariel-sand transition-colors shrink-0"
-              title="Multimodal visual search"
+              title="Search by image or visual silhouette"
             >
               <ImageIcon className="w-4 h-4 text-ariel-amber" />
               <span>Image</span>
@@ -113,7 +113,7 @@ export function SearchHero({
                 <div className="w-4 h-4 border-2 border-ariel-sand border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Search</span>
+                  <span>Find</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -123,7 +123,7 @@ export function SearchHero({
           {/* Mode Switcher Tabs */}
           <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between px-2 text-xs">
             <div className="flex items-center gap-2 text-gray-500 font-medium text-[11px]">
-              <span className="hidden sm:inline">Search Path:</span>
+              <span className="hidden sm:inline">Curation Mode:</span>
               <div className="inline-flex rounded-lg bg-ariel-sand/60 p-0.5 border border-ariel-tan/20">
                 <button
                   type="button"
@@ -134,7 +134,7 @@ export function SearchHero({
                       : "text-ariel-cognac/70 hover:text-ariel-espresso"
                   }`}
                 >
-                  ⚡ Auto Hybrid
+                  ✨ Atelier Concierge
                 </button>
                 <button
                   type="button"
@@ -145,7 +145,7 @@ export function SearchHero({
                       : "text-ariel-cognac/70 hover:text-ariel-espresso"
                   }`}
                 >
-                  🧠 Bedrock AI Intent
+                  🌿 Bespoke Consultation
                 </button>
                 <button
                   type="button"
@@ -156,22 +156,22 @@ export function SearchHero({
                       : "text-ariel-cognac/70 hover:text-ariel-espresso"
                   }`}
                 >
-                  🔍 Conventional
+                  🔍 Direct Catalog
                 </button>
               </div>
             </div>
 
-            <div className="text-[11px] text-ariel-saddle hidden md:block">
-              {selectedMode === "auto" && "Auto-routes simple keywords vs natural language AI"}
-              {selectedMode === "ai" && "Forces Nova Micro intent extraction & pgvector ranking"}
-              {selectedMode === "conventional" && "Fast keyword index path (sub-millisecond)"}
+            <div className="text-[11px] text-ariel-saddle hidden md:block font-medium">
+              {selectedMode === "auto" && "Intelligently balances natural language consultation and direct cuts"}
+              {selectedMode === "ai" && "Detailed consideration of recipient, occasion, budget & Tuscan patina"}
+              {selectedMode === "conventional" && "Direct product name and category lookup"}
             </div>
           </div>
         </form>
 
         {/* Interactive Query Chips */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          <span className="text-xs text-ariel-saddle font-semibold mr-1">Try Prompts:</span>
+          <span className="text-xs text-ariel-saddle font-semibold mr-1">Inspirations:</span>
           {SAMPLE_QUERIES.map((sample, idx) => (
             <button
               key={idx}
@@ -179,10 +179,10 @@ export function SearchHero({
                 setInputVal(sample.query);
                 onSelectSampleQuery(sample.query);
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 hover:bg-white border border-ariel-tan/30 hover:border-ariel-amber text-xs text-ariel-espresso shadow-sm transition-all hover:scale-105 group"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white hover:bg-ariel-sand/80 border border-ariel-tan/40 text-xs text-ariel-espresso transition-all shadow-2xs hover:shadow-xs hover:border-ariel-amber"
             >
               <span>{sample.label}</span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-ariel-sand text-ariel-cognac font-bold uppercase tracking-wider group-hover:bg-ariel-amber group-hover:text-white transition-colors">
+              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-ariel-sand text-ariel-saddle uppercase">
                 {sample.badge}
               </span>
             </button>

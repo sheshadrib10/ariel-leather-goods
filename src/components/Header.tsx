@@ -60,13 +60,13 @@ export function Header({
             >
               {currency} (S$)
             </button>
-            <button
-              onClick={onOpenTechSpecs}
-              className="text-gray-400 hover:text-ariel-gold transition-colors text-[10px] tracking-wider hidden sm:inline"
-              title="View Amazon Bedrock Architecture Blueprint"
+            <a
+              href="/admin"
+              className="text-ariel-gold hover:text-white transition-colors text-[10px] font-bold tracking-widest border border-ariel-gold/40 px-2.5 py-0.5 rounded flex items-center gap-1 bg-ariel-gold/10 hover:bg-ariel-gold/20"
+              title="Medusa Merchant Atelier Cockpit (Singapore Flagship)"
             >
-              Tech Specs
-            </button>
+              <span>Seller Portal</span>
+            </a>
           </div>
         </div>
       </div>
