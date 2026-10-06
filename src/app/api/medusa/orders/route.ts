@@ -3,6 +3,7 @@ import { INITIAL_ORDERS } from "@/lib/medusa/store";
 import { MedusaOrder } from "@/lib/medusa/types";
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 // In-memory orders store
 let ordersDb: MedusaOrder[] = [...INITIAL_ORDERS];

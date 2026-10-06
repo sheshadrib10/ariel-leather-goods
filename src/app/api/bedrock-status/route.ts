@@ -3,6 +3,7 @@ import { checkBedrockStatus } from "@/lib/bedrock-service";
 import { testDbConnection } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export async function GET() {
   try {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { VALID_DISCOUNTS } from "@/lib/medusa/store";
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
   try {

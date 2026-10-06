@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { MEDUSA_REGIONS } from "@/lib/medusa/store";
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export async function GET() {
   return NextResponse.json({
