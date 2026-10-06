@@ -1,0 +1,43 @@
+name: Ariel Leather Goods CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Next.js Production Build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Configure AWS Credentials
+        if: github.ref == 'refs/heads/main' && env.AWS_ACCESS_KEY_ID != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Build & Push Docker Container to ECR / Registry
+        if: github.ref == 'refs/heads/main' && env.AWS_ACCESS_KEY_ID != ''
+        run: |
+          echo "Building Docker container for Ariel Leather Goods..."
+          docker build -t ariel-leather-goods:latest .

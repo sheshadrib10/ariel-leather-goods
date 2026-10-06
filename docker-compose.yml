@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: ariel-pgvector
+    environment:
+      POSTGRES_DB: ariel_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ariel_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ariel-web
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db:5432/ariel_db
+      - AWS_REGION=us-east-1
+      - BEDROCK_INTENT_MODEL_ID=amazon.nova-micro-v1:0
+      - BEDROCK_EMBEDDING_MODEL_ID=amazon.titan-embed-text-v2:0
+      - NEXT_PUBLIC_BRAND_NAME=Ariel Leather Goods
+    restart: unless-stopped
+
+volumes:
+  pgdata:

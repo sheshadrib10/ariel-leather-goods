@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fbf8f3;
+  --foreground: #17120e;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Luxury Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f4ede2;
+}
+::-webkit-scrollbar-thumb {
+  background: #cfa675;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8a4f27;
+}
+
+/* Luxury Card Hover subtle elevation */
+.luxury-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.luxury-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(74, 44, 27, 0.12);
+}
+
+/* Glassmorphism Accents */
+.glass-panel {
+  background: rgba(251, 248, 243, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(207, 166, 117, 0.25);
+}
