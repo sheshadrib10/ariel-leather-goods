@@ -1,11 +1,17 @@
-Ariel Leather Goods - Public Preview URL
-===========================================
-Live URL for Singapore / Global Access:
-https://appreciated-biological-treasurer-matthew.trycloudflare.com
+Ariel Leather Goods - Public Production URL
+==================================================
+24/7 Permanent Global & Singapore URL (Hosted on Cloudflare Pages):
+👉 https://ariel-leather-goods.pages.dev
 
-Local URL:
-http://localhost:3000
+Deployment Preview Hash URL:
+👉 https://d95183bd.ariel-leather-goods.pages.dev
+
+Key Highlights:
+- Always Online: Operates 24/7 even when your laptop is switched completely off.
+- 100% Free Hosting: $0.00/month on Cloudflare Pages.
+- Preserved Projects: Your existing 'shulo' and 'shulo-corporate' are untouched.
+- Medusa Core Active: Domestic Singapore 9% GST, White-Glove courier, MBS Boutique pickup, discounts, orders.
+- Hybrid Vector Search: 1024-D semantic embeddings and attribute filters.
 
 GitHub Repository:
 https://github.com/sheshadrib10/ariel-leather-goods
-
