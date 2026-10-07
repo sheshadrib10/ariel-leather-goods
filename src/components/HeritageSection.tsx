@@ -5,7 +5,7 @@ import { Shield, Sparkles, Award, MapPin } from "lucide-react";
 
 export function HeritageSection() {
   return (
-    <section className="bg-ariel-sand/40 border-t border-b border-ariel-tan/20 py-16 sm:py-24">
+    <section id="heritage-section" className="bg-ariel-sand/40 border-t border-b border-ariel-tan/20 py-16 sm:py-24">
       <div className="container mx-auto max-w-7xl px-4 space-y-16">
         {/* Editorial Quote */}
         <div className="max-w-3xl mx-auto text-center space-y-4">
@@ -17,7 +17,7 @@ export function HeritageSection() {
             the honeyed patina of full-grain Tuscan hides, and the enduring precision of every hand-burnished edge.&rdquo;
           </blockquote>
           <p className="text-xs text-gray-500 font-semibold tracking-wider uppercase">
-            &mdash; Robb Report Editorial Feature &bull; The New Quiet Luxury
+            &mdash; The Ariel Atelier Manifesto &bull; Firenze &amp; Singapore
           </p>
         </div>
 
@@ -29,11 +29,11 @@ export function HeritageSection() {
               <Shield className="w-5 h-5" />
             </div>
             <h4 className="font-serif text-lg font-bold text-ariel-espresso">
-              Certified Tuscan Consortium
+              Artisanal Vegetable Tanning
             </h4>
             <p className="text-xs text-gray-600 leading-relaxed">
-              Every hide originates from historical tanneries along the Arno river basin in Tuscany,
-              tanned slowly over 60 days using natural chestnut and mimosa bark extracts.
+              Full-grain hides tanned slowly using natural chestnut and mimosa extracts.
+              Free of artificial polyurethane coatings, allowing the leather to breathe and develop a lustrous patina over a lifetime.
             </p>
           </div>
 
@@ -47,7 +47,7 @@ export function HeritageSection() {
             </h4>
             <p className="text-xs text-gray-600 leading-relaxed">
               Complimentary personalized monogramming rendered in 24k gold foil, fine silver, or subtle blind debossing
-              using curated brass serif letterpress type.
+              using hand-set brass serif letterpress type in our Singapore atelier.
             </p>
           </div>
 
@@ -57,11 +57,11 @@ export function HeritageSection() {
               <MapPin className="w-5 h-5" />
             </div>
             <h4 className="font-serif text-lg font-bold text-ariel-espresso">
-              Singapore Concierge Service
+              Singapore Delivery &amp; Support
             </h4>
             <p className="text-xs text-gray-600 leading-relaxed">
-              Dispatched with white-glove courier directly from our Singapore distribution hub.
-              Same-day delivery across Tanglin, Marina Bay, Orchard, and Sentosa Cove.
+              Dispatched with reliable courier tracking across Singapore. Complimentary delivery on orders over S$150,
+              backed by lifetime stitching repair support for all patrons.
             </p>
           </div>
         </div>
@@ -70,17 +70,20 @@ export function HeritageSection() {
         <div className="bg-ariel-espresso text-ariel-sand rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
           <div className="space-y-1 text-center md:text-left">
             <span className="text-[10px] font-bold text-ariel-gold tracking-widest uppercase">
-              By Appointment & Online Atelier
+              Singapore Atelier &bull; By Appointment
             </span>
             <h4 className="font-serif text-xl sm:text-2xl font-bold text-white">
-              Ariel Private Salon Singapore
+              Ariel Atelier Singapore
             </h4>
             <p className="text-xs text-gray-400">
-              10 Bayfront Avenue, Marina Bay Sands, Singapore 018956 &bull; Private Consultations Daily
+              10 Bayfront Avenue, Marina Bay Sands, Singapore 018956 &bull; Online Concierge Daily
             </p>
           </div>
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => {
+              const el = document.getElementById("catalog-section");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }}
             className="px-6 py-3 bg-ariel-gold text-ariel-espresso rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors shrink-0 shadow-sm"
           >
             Explore Available Creations

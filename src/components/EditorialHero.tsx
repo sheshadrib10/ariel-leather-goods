@@ -121,17 +121,17 @@ export function EditorialHero({
         <div className="lg:col-span-5 space-y-5 text-center lg:text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ariel-sand border border-ariel-tan/40 text-[11px] font-bold text-ariel-cognac tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-            <span>Florentine Provenance &bull; MBS #01-42 Flagship</span>
+            <span>Singapore Atelier &bull; Handcrafted in Italy</span>
           </div>
 
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-ariel-espresso leading-[1.12]">
-            Quiet Luxury. <br />
-            Florentine Artistry.
-          </h2>
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-ariel-espresso leading-[1.12]">
+            Italian Leather. <br />
+            Made for a Lifetime.
+          </h1>
 
           <p className="text-sm sm:text-base text-gray-600 max-w-lg mx-auto lg:mx-0 font-normal leading-relaxed">
-            Handcrafted from certified Tuscan vegetable-tanned hides and English bridle leathers.
-            Curated for discerning patrons across Marina Bay, Nassim Road, and Sentosa Cove.
+            Handcrafted leather goods in full-grain Tuscan hides, finished for modern Singapore.
+            Each edge burnished by hand with natural waxes, double-needle saddle stitched, and eligible for complimentary bespoke hot-stamping.
           </p>
 
           {/* Action Buttons */}
@@ -140,16 +140,27 @@ export function EditorialHero({
               onClick={onExploreCreations}
               className="w-full sm:w-auto px-6 py-3.5 bg-ariel-espresso hover:bg-ariel-cognac text-ariel-sand rounded-xl text-xs font-bold tracking-widest uppercase transition-all shadow-md flex items-center justify-center gap-2"
             >
-              <span>Explore Lookbook</span>
+              <span>Shop Leather Goods</span>
               <ArrowDown className="w-4 h-4" />
             </button>
 
             <button
-              onClick={onOpenConciergeSearch}
-              className="w-full sm:w-auto px-5 py-3.5 bg-white/90 hover:bg-white text-ariel-espresso border border-ariel-tan/40 rounded-xl text-xs font-bold tracking-widest uppercase transition-all shadow-xs flex items-center justify-center gap-2 group"
+              onClick={() => {
+                const el = document.getElementById("monogram-section");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="w-full sm:w-auto px-5 py-3.5 bg-amber-100/70 hover:bg-amber-100 text-amber-950 border border-amber-300 rounded-xl text-xs font-bold tracking-widest uppercase transition-all shadow-xs flex items-center justify-center gap-2 group"
             >
-              <Sparkles className="w-4 h-4 text-ariel-amber group-hover:scale-110 transition-transform" />
-              <span>Atelier Concierge</span>
+              <Sparkles className="w-4 h-4 text-amber-700 group-hover:scale-110 transition-transform" />
+              <span>Personalise a Piece</span>
+            </button>
+
+            <button
+              onClick={onOpenConciergeSearch}
+              className="w-full sm:w-auto px-4 py-3.5 bg-white/90 hover:bg-white text-ariel-espresso border border-ariel-tan/40 rounded-xl text-xs font-bold tracking-widest uppercase transition-all shadow-xs flex items-center justify-center gap-1.5"
+              title="Concierge Search"
+            >
+              <span>Concierge</span>
             </button>
           </div>
 
@@ -160,11 +171,11 @@ export function EditorialHero({
               <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Tuscan Full-Grain</p>
             </div>
             <div>
-              <p className="font-serif text-lg sm:text-xl font-bold text-ariel-espresso">Same-Day</p>
-              <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">EasyParcel Courier</p>
+              <p className="font-serif text-lg sm:text-xl font-bold text-ariel-espresso">Hand-Finished</p>
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Waxed Edges</p>
             </div>
             <div>
-              <p className="font-serif text-lg sm:text-xl font-bold text-ariel-espresso">Bespoke</p>
+              <p className="font-serif text-lg sm:text-xl font-bold text-ariel-espresso">Complimentary</p>
               <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">24k Gold Monogram</p>
             </div>
           </div>
