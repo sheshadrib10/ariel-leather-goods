@@ -7,7 +7,7 @@ Uncle's Single-Merchant Atelier Cockpit:
 👉 https://ariel-leather-goods.pages.dev/admin
 
 Latest Deployment Snapshot:
-👉 https://b70c7b79.ariel-leather-goods.pages.dev
+👉 https://99fc9782.ariel-leather-goods.pages.dev
 
 Key Enterprise Modules Active:
 - Brand Visual Identity: Handcrafted gold crest emblem & monogram at top-left corner

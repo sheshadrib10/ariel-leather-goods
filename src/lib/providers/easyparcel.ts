@@ -127,3 +127,4 @@ export class EasyParcelFulfillmentProvider {
 }
 
 export const easyParcelProvider = new EasyParcelFulfillmentProvider();
+

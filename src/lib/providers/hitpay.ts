@@ -136,3 +136,4 @@ export class HitPayPaymentProvider {
 }
 
 export const hitPayProvider = new HitPayPaymentProvider();
+
